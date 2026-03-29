@@ -1,0 +1,517 @@
+﻿@{
+    ViewBag.Title = "Gọi Món";
+    Layout = null;
+
+    var ban = ViewBag.BanAn as DAQCom.Models.BanAn;
+    var hoaDon = ViewBag.HoaDon as DAQCom.Models.HoaDon;
+    var allMonAn = ViewBag.AllMonAn as List<DAQCom.Models.MonAn> ?? new List<DAQCom.Models.MonAn>();
+    var listLoai = ViewBag.LoaiMon as List<string> ?? new List<string>();
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>POS - @(ban != null ? ban.TenBan : "Bàn ?")</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            height: 100vh;
+            overflow: hidden;
+            background: #f4f6f9;
+            font-family: 'Roboto', sans-serif !important;
+        }
+
+        .full-height {
+            height: calc(100vh - 60px);
+        }
+
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .menu-filters {
+            padding: 12px 15px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            z-index: 10;
+        }
+
+        .menu-list {
+            overflow-y: auto;
+            flex-grow: 1;
+            padding: 15px;
+            background: #f4f6f9;
+        }
+
+        .menu-item {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            height: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+            .menu-item:hover {
+                border-color: #28a745;
+                transform: translateY(-4px);
+                box-shadow: 0 8px 15px rgba(40, 167, 69, 0.15);
+            }
+
+            .menu-item:active {
+                transform: scale(0.98);
+            }
+
+        .menu-img {
+            height: 120px;
+            object-fit: cover;
+            width: 100%;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .item-info {
+            padding: 12px;
+            text-align: center;
+        }
+
+        .item-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+            height: 40px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            color: #333;
+        }
+
+        .item-price {
+            color: #d63384;
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+
+        .bill-container {
+            background: white;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .bill-header {
+            background: #2c3e50;
+            color: white;
+            padding: 12px 15px;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .bill-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .bill-table th {
+            position: sticky;
+            top: 0;
+            background: #f8f9fa;
+            z-index: 5;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #6c757d;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .bill-table td {
+            vertical-align: middle;
+            font-size: 0.95rem;
+            padding: 12px 8px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .bill-footer {
+            padding: 15px;
+            background: #fff;
+            border-top: 1px solid #e0e0e0;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #999;
+            }
+
+        .nav-pills {
+            gap: 8px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+            .nav-pills .nav-link {
+                color: #555;
+                border: 1px solid #e0e0e0;
+                border-radius: 50px;
+                padding: 6px 20px;
+                font-size: 0.9rem;
+                white-space: nowrap;
+                font-weight: 600;
+                background: white;
+            }
+
+                .nav-pills .nav-link.active {
+                    background-color: #28a745;
+                    border-color: #28a745;
+                    color: white;
+                    box-shadow: 0 4px 6px rgba(40,167,69,0.25);
+                }
+
+        .modal-dish-img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .qty-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .btn-qty {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid #e0e0e0;
+            background: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            transition: 0.2s;
+        }
+
+            .btn-qty:hover {
+                background: #f8f9fa;
+                border-color: #ccc;
+            }
+
+            .btn-qty.disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+            }
+
+        .qty-display {
+            font-size: 2.2rem;
+            font-weight: 800;
+            width: 70px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            color: #333;
+        }
+
+        .cancel-reason-box {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.15);
+            z-index: 20;
+        }
+
+        .reason-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            color: #dc3545;
+            font-weight: 500;
+        }
+
+            .reason-item:hover {
+                background: #fff5f5;
+            }
+
+        .row-new {
+            background-color: #fff8e1 !important;
+        }
+
+        .swal2-popup {
+            font-family: 'Roboto', sans-serif !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-dark text-white px-3 py-2 d-flex justify-content-between align-items-center shadow-sm" style="height: 60px;">
+        <div class="d-flex align-items-center">
+            <a href="@Url.Action("Index", "NhanVien")" class="btn btn-outline-light btn-sm me-3">
+                <i class="fas fa-arrow-left me-1"></i> Sơ đồ bàn
+            </a>
+            <h5 class="m-0 fw-bold text-warning">
+                @(ban != null ? ban.TenBan : "Bàn ?")
+                <span class="badge bg-secondary ms-2 text-white" style="font-size:0.75rem;">
+                    HD: @(hoaDon != null ? "#" + hoaDon.MaHD : "Mới")
+                </span>
+            </h5>
+        </div>
+        <div>
+            <span class="me-3 d-none d-md-inline opacity-75 font-monospace"><i class="far fa-clock me-1"></i> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</span>
+            <a href="@Url.Action("ThuNgan", "NhanVien")" class="btn btn-warning btn-sm fw-bold text-dark">
+                <i class="fas fa-cash-register me-1"></i> Thu Ngân
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-0 full-height">
+        <div class="col-md-8 col-lg-9 menu-container">
+            <div class="menu-filters">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-4 col-lg-3">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="fas fa-search"></i></span>
+                            <input type="text" id="txtSearch" class="form-control border-start-0 ps-0" placeholder="Tìm món ăn..." onkeyup="filterMenu()">
+                        </div>
+                    </div>
+                    <div class="col-md-8 col-lg-9">
+                        <ul class="nav nav-pills" id="pills-tab">
+                            <li class="nav-item">
+                                <button class="nav-link active" onclick="filterCategory('all', this)">Tất cả</button>
+                            </li>
+                            @foreach (var loai in listLoai)
+                            {
+                                <li class="nav-item">
+                                    <button class="nav-link" onclick="filterCategory('@loai', this)">@loai</button>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="menu-list">
+                <div class="row g-3" id="menu-grid">
+                    @foreach (var mon in allMonAn)
+                    {
+                        <div class="col-6 col-md-4 col-lg-3 col-xl-2 menu-item-col" data-name="@mon.TenMon.ToLower()" data-category="@mon.LoaiMon">
+                            <div class="menu-item" onclick="openOrderModal(@mon.MaMon, '@mon.TenMon', @mon.Gia, '@mon.HinhAnh')">
+                                <img src="~/Content/Images/@mon.HinhAnh" class="menu-img" onerror="this.src='https://placehold.co/150x110?text=No+Img'">
+                                <div class="item-info">
+                                    <div class="item-name">@mon.TenMon</div>
+                                    <div class="item-price">@string.Format("{0:N0}", mon.Gia)</div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 col-lg-3 bill-container" id="bill-content">
+            @Html.Partial("_BillPartial", hoaDon)
+        </div>
+    </div>
+
+    <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+                <div class="modal-body p-4 position-relative">
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+                    <div class="text-center">
+                        <img id="modalImg" src="" class="modal-dish-img">
+                        <h4 id="modalName" class="fw-bold mb-1 fs-3">Tên Món</h4>
+                        <div id="modalPrice" class="text-danger fw-bold fs-4">0 đ</div>
+                    </div>
+                    <div class="qty-control">
+                        <button class="btn-qty" id="btnMinus" onclick="adjustQty(-1)"><i class="fas fa-minus"></i></button>
+                        <input type="number" id="inputQty" class="qty-display" value="1" readonly>
+                        <button class="btn-qty" id="btnPlus" onclick="adjustQty(1)"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold mb-2 small text-secondary">Ghi chú cho bếp:</label>
+                        <textarea id="txtNote" class="form-control bg-light" rows="2" placeholder="VD: Ít cay..."></textarea>
+                    </div>
+                    <div class="row g-2 position-relative">
+                        <div class="col-4">
+                            <button class="btn btn-outline-danger w-100 py-3 fw-bold" onclick="toggleCancelMenu()"><i class="fas fa-times"></i> Hủy</button>
+                            <div id="cancelMenu" class="cancel-reason-box">
+                                <div class="reason-item" onclick="confirmCancel('Khách hủy')">Khách đổi ý</div>
+                                <div class="reason-item" onclick="confirmCancel('Order nhầm')">Order nhầm</div>
+                                <div class="reason-item text-secondary" onclick="confirmCancel('Đóng')">Quay lại</div>
+                            </div>
+                        </div>
+                        <div class="col-8">
+                            <button class="btn btn-success w-100 py-3 fw-bold shadow-sm" onclick="submitOrder()">THÊM MÓN</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <iframe id="printFrame" style="display:none;"></iframe>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        const Toast = Swal.mixin({
+            toast: true, position: 'top-end', showConfirmButton: false, timer: 1500, timerProgressBar: true
+        });
+
+        var currentMonId = 0;
+        var orderModal = new bootstrap.Modal(document.getElementById('orderModal'));
+
+        function openOrderModal(id, name, price, img) {
+            currentMonId = id;
+            $('#modalName').text(name);
+            $('#modalPrice').text(new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price));
+            $('#modalImg').attr('src', '/Content/Images/' + img);
+            $('#inputQty').val(1);
+            $('#txtNote').val('');
+            $('#cancelMenu').hide();
+            $('#btnMinus').addClass('disabled');
+            orderModal.show();
+        }
+
+        function adjustQty(delta) {
+            var qty = parseInt($('#inputQty').val()) + delta;
+            if (qty < 1) qty = 1;
+            $('#inputQty').val(qty);
+            qty <= 1 ? $('#btnMinus').addClass('disabled') : $('#btnMinus').removeClass('disabled');
+        }
+
+        function toggleCancelMenu() { $('#cancelMenu').toggle(); }
+        function confirmCancel(reason) { reason === 'Đóng' ? $('#cancelMenu').hide() : orderModal.hide(); }
+
+        function submitOrder() {
+            var qty = $('#inputQty').val();
+            var note = $('#txtNote').val();
+
+            $.post('@Url.Action("ThemMonVaoBan", "NhanVien")', {
+                idBan: @(ban?.MaBan ?? 0),
+                maMon: currentMonId,
+                soLuong: qty,
+                ghiChu: note
+            }, function(res) {
+                if (typeof res === "string" && res.indexOf("bill-table") !== -1) {
+                    orderModal.hide();
+                    $("#bill-content").html(res);
+                    Toast.fire({ icon: 'success', title: 'Đã thêm món!' });
+                } else if (res.success === false) {
+                    Swal.fire('Lỗi', res.msg, 'error');
+                }
+            }).fail(function(xhr) {
+                Swal.fire('Lỗi', 'Không thể kết nối máy chủ', 'error');
+            });
+        }
+
+        function guiBep() {
+            Swal.fire({
+                title: 'Gửi xuống bếp?',
+                text: "Xác nhận gửi yêu cầu chế biến?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#ffc107',
+                confirmButtonText: 'Gửi ngay!',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('@Url.Action("GuiBepVaInPhieu", "NhanVien")', { idBan: @(ban?.MaBan ?? 0) }, function(res) {
+                        if(res.success) {
+                            var iframe = document.getElementById('printFrame');
+                            iframe.src = '/Bep/InPhieuBep?idBan=@(ban?.MaBan ?? 0)';
+                            setTimeout(function(){ location.reload(); }, 800);
+                        } else {
+                            Swal.fire('Lỗi', res.msg, 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function guiYeuCauThanhToan() {
+            Swal.fire({
+                title: 'Yêu cầu thanh toán?',
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Gửi yêu cầu',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('@Url.Action("YeuCauThanhToan", "NhanVien")', { idBan: @(ban?.MaBan ?? 0) }, function(res){
+                        if(res.success) {
+                            Swal.fire('Thành công', 'Đã báo thu ngân!', 'success').then(() => location.reload());
+                        } else Swal.fire('Lỗi', res.msg, 'error');
+                    });
+                }
+            });
+        }
+
+        var currentCategory = 'all';
+        function filterMenu() {
+            var keyword = document.getElementById('txtSearch').value.toLowerCase();
+            var items = document.getElementsByClassName('menu-item-col');
+            for (var i = 0; i < items.length; i++) {
+                var name = items[i].getAttribute('data-name');
+                var cat = items[i].getAttribute('data-category');
+                var matchSearch = name.includes(keyword);
+                var matchCat = (currentCategory === 'all' || cat === currentCategory);
+                items[i].style.display = (matchSearch && matchCat) ? 'block' : 'none';
+            }
+        }
+
+        function filterCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.nav-pills .nav-link').forEach(l => l.classList.remove('active'));
+            btn.classList.add('active');
+            filterMenu();
+        }
+
+        window.addEventListener("pageshow", function (event) {
+            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+                window.location.reload();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+﻿@{
+    ViewBag.Title = "Đặt lại mật khẩu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .login-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 30px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    .btn-reset {
+        background-color: #28a745;
+        color: white;
+        font-weight: bold;
+        height: 45px;
+        width: 100%;
+        border: none;
+        border-radius: 5px;
+    }
+
+        .btn-reset:hover {
+            background-color: #218838;
+        }
+
+    .password-wrapper {
+        position: relative;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 15px;
+        top: 12px;
+        cursor: pointer;
+        color: #666;
+    }
+</style>
+
+<div class="login-container">
+    <h3 class="text-center fw-bold mb-3">MẬT KHẨU MỚI</h3>
+    <p class="text-center text-muted small mb-4">Vui lòng thiết lập mật khẩu mới cho tài khoản của bạn.</p>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger text-center">@ViewBag.Error</div>
+    }
+
+    @using (Html.BeginForm("DatLaiMatKhau", "QuanAn", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label class="fw-bold mb-1">Mật khẩu mới</label>
+            <div class="password-wrapper">
+                <input type="password" name="MatKhauMoi" id="pw1" class="form-control" required placeholder="Nhập mật khẩu mới" />
+                <i class="fa fa-eye toggle-password" onclick="togglePassword('pw1')"></i>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="fw-bold mb-1">Xác nhận mật khẩu</label>
+            <div class="password-wrapper">
+                <input type="password" name="NhapLaiMatKhau" id="pw2" class="form-control" required placeholder="Nhập lại mật khẩu mới" />
+                <i class="fa fa-eye toggle-password" onclick="togglePassword('pw2')"></i>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-reset">XÁC NHẬN ĐỔI MẬT KHẨU</button>
+    }
+</div>
+
+<script>
+    function togglePassword(id) {
+        var x = document.getElementById(id);
+        x.type = x.type === "password" ? "text" : "password";
+    }
+</script>

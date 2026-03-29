@@ -1,0 +1,388 @@
+﻿@model List<DAQCom.Models.BepTicketDTO>
+@{
+    ViewBag.Title = "KDS - Màn Hình Bếp";
+    Layout = null;
+
+    string cssKeyframes = @"
+@keyframes pulse {
+0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+}";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KDS - Bếp Nhà Hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #222;
+            color: #eee;
+            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .kds-header {
+            background: #111;
+            padding: 10px 25px;
+            border-bottom: 3px solid #d32f2f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ticket-card {
+            background: #fff;
+            color: #333;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #444;
+            transition: all 0.3s;
+        }
+
+        .urgent-ticket {
+            border: 3px solid #ff0000;
+            animation: pulse 2s infinite;
+        }
+
+        @Html.Raw(cssKeyframes)
+
+        .ticket-header {
+            padding: 10px 15px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-table { background: #ffc107; color: #000; }
+        .header-online { background: #0d6efd; color: #fff; }
+
+        .ticket-body {
+            padding: 0;
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 400px;
+            background: #fff;
+        }
+
+        .order-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .item-qty {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #d32f2f;
+            min-width: 40px;
+            text-align: center;
+            margin-right: 10px;
+            line-height: 1;
+        }
+
+        .item-name {
+            font-weight: 700;
+            font-size: 1.05rem;
+            line-height: 1.2;
+        }
+
+        .item-note {
+            font-size: 0.85rem;
+            color: #c62828;
+            font-weight: 600;
+            font-style: italic;
+            display: block;
+            margin-top: 4px;
+            background: #ffebee;
+            padding: 2px 6px;
+            border-radius: 4px;
+            width: fit-content;
+        }
+
+        .btn-check-item {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            color: #ccc;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-check-item:hover, .order-item:hover .btn-check-item {
+            border-color: #4caf50;
+            color: #4caf50;
+        }
+
+        .ticket-footer { border-top: 1px solid #ccc; }
+
+        .btn-done-all {
+            width: 100%;
+            padding: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            background: #2e7d32;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-done-all:hover { background: #1b5e20; }
+
+        .item-done {
+            text-decoration: line-through;
+            opacity: 0.4;
+            background: #f5f5f5;
+            pointer-events: none;
+        }
+
+        #audio-status-bar {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .audio-off { background: #d32f2f; color: white; border: 1px solid #ffcdd2; }
+        .audio-on { background: #2e7d32; color: white; border: 1px solid #c8e6c9; }
+
+        .ticket-body::-webkit-scrollbar { width: 6px; }
+        .ticket-body::-webkit-scrollbar-thumb { background-color: rgba(0,0,0,0.2); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="kds-header">
+        <div class="d-flex align-items-center">
+            <h4 class="m-0 fw-bold text-uppercase me-4"><i class="fas fa-fire-burner me-2 text-warning"></i> KDS BẾP</h4>
+            <div id="audio-status-bar" class="audio-off" onclick="enableAudio()">
+                <i class="fas fa-volume-mute me-2"></i> ĐANG KIỂM TRA ÂM THANH...
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <button onclick="location.reload()" class="btn btn-outline-light btn-sm"><i class="fas fa-sync-alt"></i> Làm mới</button>
+            <span id="clock" class="fs-4 fw-bold text-white font-monospace">00:00:00</span>
+            <a href="@Url.Action("Index", "NhanVien")" class="btn btn-outline-secondary btn-sm border-0"><i class="fas fa-home"></i></a>        </div>
+    </div>
+
+    <div class="container-fluid mt-3">
+        <div class="row g-3" id="ticket-container">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var ticket in Model)
+                {
+                    string headerClass = (ticket.TenBan.ToLower().Contains("online") || ticket.TenBan.ToLower().Contains("mang về"))
+                                         ? "header-online"
+                                         : "header-table";
+
+                    <div class="col-xl-3 col-lg-4 col-md-6 mb-3" id="ticket-@ticket.MaHD">
+                        <div class="ticket-card shadow-sm">
+                            <div class="ticket-header @headerClass">
+                                <div class="text-truncate" style="max-width: 70%;">
+                                    <span>@ticket.TenBan</span>
+                                </div>
+                                <div class="d-flex flex-column align-items-end">
+                                    <span class="badge bg-white text-dark mb-1" style="font-size:0.75rem">#@ticket.MaHD</span>
+                                    <small class="fw-normal bg-white text-dark px-2 rounded shadow-sm" style="font-size: 0.8rem">
+                                        <i class="far fa-clock me-1"></i>@ticket.GioGoi
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="ticket-body">
+                                @foreach (var item in ticket.ListMon)
+                                {
+                                    <div class="order-item @(item.TrangThai == 2 ? "item-done" : "")" id="item-row-@item.MaCT">
+                                        <div class="item-qty">@item.SoLuong</div>
+                                        <div class="item-details w-100">
+                                            <div class="item-name">@item.TenMon</div>
+                                            @if (!string.IsNullOrEmpty(item.GhiChu))
+                                            {
+                                                <span class="item-note"><i class="fas fa-comment-dots me-1"></i> @item.GhiChu</span>
+                                            }
+                                        </div>
+                                        <button class="btn-check-item" onclick="doneItem(@item.MaCT)" title="Xong món này">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="ticket-footer">
+                                <button class="btn-done-all" onclick="doneAll(@ticket.MaHD)">
+                                    <i class="fas fa-check-double me-2"></i> XONG (@ticket.ListMon.Count món)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center" style="margin-top: 150px;">
+                    <i class="fas fa-check-circle fa-5x mb-4 text-success opacity-50"></i>
+                    <h2 class="text-secondary fw-bold">BẾP ĐANG RẢNH RỖI</h2>
+                    <p class="text-muted">Chưa có món ăn nào cần nấu.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    // 1. Kiểm tra trạng thái đã lưu trong máy người dùng chưa
+    var audioEnabled = localStorage.getItem('kds_audio_enabled') === 'true';
+    var currentCount = @(Model != null ? Model.Sum(x => x.ListMon.Count(m => m.TrangThai == 0)) : 0);
+
+    // Tự động kích hoạt giao diện nếu đã bật trước đó
+    $(document).ready(function() {
+        if (audioEnabled) {
+            updateAudioUI(true);
+        } else {
+            updateAudioUI(false);
+        }
+    });
+
+    function updateAudioUI(enabled) {
+        const bar = document.getElementById("audio-status-bar");
+        if (bar) {
+            if (enabled) {
+                bar.className = "audio-on";
+                bar.innerHTML = '<i class="fas fa-volume-up me-2"></i> ÂM THANH ĐANG BẬT';
+                bar.style.backgroundColor = "#2e7d32";
+            } else {
+                bar.className = "audio-off";
+                bar.innerHTML = '<i class="fas fa-volume-mute me-2"></i> CHƯA BẬT ÂM THANH (NHẤN ĐỂ KÍCH HOẠT)';
+                bar.style.backgroundColor = "#d32f2f";
+            }
+        }
+    }
+
+    function playBeep() {
+        if (!audioEnabled) return;
+        try {
+            var context = new (window.AudioContext || window.webkitAudioContext)();
+            var osc = context.createOscillator();
+            var gain = context.createGain();
+            osc.connect(gain);
+            gain.connect(context.destination);
+            osc.type = "sine";
+            osc.frequency.value = 880;
+            gain.gain.setValueAtTime(0.5, context.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
+            osc.start(context.currentTime);
+            osc.stop(context.currentTime + 0.5);
+        } catch (e) { console.error("Audio error:", e); }
+    }
+
+    function enableAudio() {
+        audioEnabled = true;
+        localStorage.setItem('kds_audio_enabled', 'true'); // Lưu vào bộ nhớ trình duyệt
+        updateAudioUI(true);
+        playBeep();
+    }
+
+    // Luôn cố gắng bật lại âm thanh khi người dùng tương tác bất cứ đâu trên màn hình
+    $(document).on('click touchstart', function() {
+        if(!audioEnabled) enableAudio();
+    });
+
+    // Các hàm xử lý đơn hàng giữ nguyên...
+    function checkDonHang() {
+        $.ajax({
+            url: '/NhanVien/KiemTraDonMoi',
+            type: 'GET',
+            cache: false,
+            success: function (res) {
+                if (res.SoLuong > currentCount) {
+                    playBeep();
+                    // Lưu ý: location.reload() sẽ làm mất trạng thái biến,
+                    // nhưng localStorage ở trên sẽ cứu chúng ta.
+                    setTimeout(() => { location.reload(); }, 1200);
+                } else if (res.SoLuong < currentCount) {
+                    currentCount = res.SoLuong;
+                }
+            }
+        });
+    }
+
+        setInterval(checkDonHang, 5000);
+
+        setInterval(() => {
+            const clockEl = document.getElementById('clock');
+            if(clockEl) {
+                const now = new Date();
+                clockEl.innerText = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
+        }, 1000);
+
+
+        // Hàm hoàn thành từng món lẻ
+        function doneItem(maCT) {
+            if (!confirm("Xác nhận món này đã nấu xong?")) return;
+
+            $.ajax({
+                url: '/NhanVien/HoanThanhMon', // Kiểm tra lại tên Controller của bạn
+                type: 'POST',
+                data: { maCT: maCT },
+                success: function (res) {
+                    if (res.success) {
+                        // Hiệu ứng gạch ngang món ăn ngay lập tức
+                        $("#item-row-" + maCT).addClass("item-done");
+                        // Tự động reload sau 1 giây để cập nhật danh sách
+                        setTimeout(() => { location.reload(); }, 1000);
+                    } else {
+                        alert("Lỗi: " + res.message);
+                    }
+                },
+                error: function () {
+                    alert("Không thể kết nối máy chủ. Vui lòng kiểm tra lại mạng!");
+                }
+            });
+        }
+
+        // Hàm hoàn thành toàn bộ bàn/đơn hàng
+        function doneAll(maHD) {
+            if (!confirm("Xác nhận TẤT CẢ món trong đơn này đã hoàn thành?")) return;
+
+            $.ajax({
+                url: '/NhanVien/HoanThanhTatCaMon',
+                type: 'POST',
+                data: { maHD: maHD },
+                success: function (res) {
+                    if (res.success) {
+                        // Hiệu ứng ẩn cả ticket
+                        $("#ticket-" + maHD).fadeOut(500, function () {
+                            $(this).remove();
+                            if ($(".ticket-card").length === 0) location.reload();
+                        });
+                    } else {
+                        alert("Lỗi: " + res.message);
+                    }
+                },
+                error: function () {
+                    alert("Lỗi kết nối máy chủ khi hoàn thành đơn hàng.");
+                }
+            });
+        }
+    </script>
+</body>
+</html>

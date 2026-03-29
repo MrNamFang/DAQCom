@@ -1,0 +1,32 @@
+﻿@{
+    ViewBag.Title = "Đặt hàng thành công";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5 text-center" style="min-height: 60vh; display: flex; align-items: center; justify-content: center;">
+    <div class="card border-0 shadow-lg p-5 rounded-3" style="max-width: 600px;">
+        <div class="card-body">
+            <div class="mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 rounded-circle" style="width: 120px; height: 120px;">
+                    <i class="bi bi-check-lg text-success" style="font-size: 4rem;"></i>
+                </div>
+            </div>
+
+            <h2 class="fw-bold text-success text-uppercase mb-3">ĐẶT HÀNG THÀNH CÔNG!</h2>
+
+            <p class="lead text-muted mb-4">
+                Cảm ơn bạn đã tin tưởng và ủng hộ <strong>PNK Restaurant</strong>.<br>
+                Đơn hàng của bạn đã được hệ thống ghi nhận và sẽ được giao đến trong thời gian sớm nhất.
+            </p>
+
+            <div class="d-grid gap-3 d-sm-flex justify-content-sm-center mt-4">
+                <a href="@Url.Action("Index", "QuanAn")" class="btn btn-warning btn-lg fw-bold px-4 rounded-pill shadow-sm">
+                    <i class="bi bi-house-door-fill me-2"></i> Về Trang Chủ
+                </a>
+                <a href="@Url.Action("LienHe", "QuanAn")" class="btn btn-outline-secondary btn-lg px-4 rounded-pill">
+                    <i class="bi bi-headset me-2"></i> Liên hệ hỗ trợ
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

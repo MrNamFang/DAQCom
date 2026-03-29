@@ -1,0 +1,128 @@
+﻿@using DAQCom.Models
+@{
+    ViewBag.Title = "Trang chủ - Quán Cơm Ngon";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // --- CƠ CHẾ AN TOÀN: Nếu ViewBag null thì gán bằng List rỗng để tránh lỗi ---
+    var monMan = ViewBag.MonMan as IEnumerable<MonAn> ?? new List<MonAn>();
+    var monChay = ViewBag.MonChay as IEnumerable<MonAn> ?? new List<MonAn>();
+    // ... (Tương tự cho các loại khác nếu cần hiển thị bên dưới)
+}
+
+@if (ViewBag.Success != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        <strong>Thành công!</strong> @ViewBag.Success
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@* --- SLIDE BANNER (CAROUSEL) CŨ --- *@
+<div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+    <div class="carousel-inner">
+        @{
+            var imageFiles = new List<string> { "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg", "8.jpg" };
+
+            for (int i = 0; i < imageFiles.Count; i++)
+            {
+                string activeClass = (i == 0) ? "active" : "";
+                string imagePath = Url.Content($"~/Content/Images/{imageFiles[i]}");
+
+                <div class="carousel-item @activeClass">
+                    <img src="@imagePath" class="d-block w-100" style="height: 500px; object-fit: cover;"
+                         onerror="this.src='@Url.Content("~/Content/Images/noimage.jpg")'" />
+
+                    <div class="carousel-caption d-none d-md-block"
+                         style="background-color: rgba(0,0,0,0.5); padding: 20px;">
+                        <h1 class="fw-bold">PNK Restaurant - Hương vị Truyền thống</h1>
+                        <p class="lead">Đến PNK dùng bữa cơm nhẹ nhàng, vui vui.</p>
+                        <a href="@Url.Action("DatMon", "QuanAn")"
+                           class="btn btn-warning btn-lg fw-bold">
+                            Đặt món ngay <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </button>
+</div>
+
+@* --- THÔNG TIN GIỚI THIỆU VỀ QUÁN (THAY CHO DANH SÁCH MÓN ĂN) --- *@
+<div class="container py-5">
+
+    <!-- Phần Giới Thiệu -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6 mb-4 mb-md-0">
+            <h2 class="fw-bold text-uppercase text-danger mb-3">Về PNK Restaurant</h2>
+            <p class="text-muted lead" style="text-align: justify;">
+                Chào mừng bạn đến với <strong>PNK Restaurant</strong> – nơi lưu giữ những hương vị truyền thống của bữa cơm gia đình Việt.
+                Chúng tôi tự hào mang đến những món ăn không chỉ ngon miệng mà còn đảm bảo dinh dưỡng và vệ sinh an toàn thực phẩm.
+            </p>
+            <div class="mt-4">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-check-circle-fill text-success fs-5 me-2"></i>
+                    <span>Nguyên liệu tươi sạch 100%</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-check-circle-fill text-success fs-5 me-2"></i>
+                    <span>Đầu bếp chuyên nghiệp, tận tâm</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill text-success fs-5 me-2"></i>
+                    <span>Không gian ấm cúng, thoáng mát</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 text-center">
+            <img src="~/Content/Images/1.jpg" class="img-fluid rounded shadow"
+                 style="max-height: 350px; object-fit: cover;"
+                 onerror="this.src='https://via.placeholder.com/500x350'" />
+        </div>
+    </div>
+
+    <hr class="my-5 text-muted">
+
+    <!-- Phần Tại Sao Chọn Chúng Tôi -->
+    <div class="row text-center mb-5">
+        <h2 class="fw-bold text-center mb-5 text-uppercase">Tại Sao Chọn Chúng Tôi?</h2>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm p-4">
+                <div class="text-warning mb-3"><i class="bi bi-star-fill display-4"></i></div>
+                <h4 class="fw-bold">Chất Lượng Hàng Đầu</h4>
+                <p class="text-muted">Món ăn được chế biến tỉ mỉ, giữ trọn hương vị tự nhiên.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm p-4">
+                <div class="text-success mb-3"><i class="bi bi-truck display-4"></i></div>
+                <h4 class="fw-bold">Giao Hàng Nhanh</h4>
+                <p class="text-muted">Đảm bảo món ăn đến tay bạn vẫn còn nóng hổi.</p>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm p-4">
+                <div class="text-danger mb-3"><i class="bi bi-heart-fill display-4"></i></div>
+                <h4 class="fw-bold">Phục Vụ Tận Tâm</h4>
+                <p class="text-muted">Luôn lắng nghe và phục vụ khách hàng chu đáo nhất.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thông tin liên hệ nhanh -->
+    <div class="bg-light p-4 rounded text-center shadow-sm">
+        <h4 class="fw-bold text-dark">⏰ Giờ Mở Cửa: 08:00 - 22:00 (Cả tuần)</h4>
+        <p class="fs-5 mb-0 mt-2"><i class="bi bi-geo-alt-fill text-danger"></i> Địa chỉ: 123 Đường Ẩm Thực, Quận 1, TP. Hồ Chí Minh</p>
+        <p class="fs-5 mb-3 mt-1"><i class="bi bi-telephone-fill text-success"></i> Hotline: <strong>0909 123 456</strong></p>
+        <a href="@Url.Action("LienHe", "QuanAn")" class="btn btn-outline-danger rounded-pill px-4">Liên Hệ Ngay</a>
+    </div>
+</div>

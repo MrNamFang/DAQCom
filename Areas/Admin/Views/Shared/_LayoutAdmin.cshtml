@@ -1,0 +1,73 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewBag.Title - Quản Trị Admin</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background: #f4f6f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .admin-header {
+            background: #0d1b2a;
+            padding: 12px 30px;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .admin-header a {
+                color: #fff;
+                margin-left: 20px;
+                text-decoration: none;
+            }
+
+                .admin-header a:hover {
+                    color: #ffc107;
+                }
+
+        .content-wrapper {
+            padding: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-header">
+        <h4 class="m-0">
+            <i class="bi bi-egg-fried"></i> Admin Quán Cơm
+        </h4>
+
+        <div>
+            <!-- Xem website -->
+            <a href="@Url.Action("Index", "QuanAn", new { area = "" })" target="_blank">
+                <i class="bi bi-globe"></i> Xem Website
+            </a>
+
+            <!-- ✅ FIX LOGOUT -->
+            <a href="@Url.Action("DangXuat", "QuanAn", new { area = "" })">
+                <i class="bi bi-box-arrow-right"></i> Đăng xuất
+            </a>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        @RenderBody()
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

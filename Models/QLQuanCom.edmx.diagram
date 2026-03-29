@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="8786b4c820cf47d1a2386d2e52ac5d79" Name="Diagram1" ZoomLevel="60">
+        <EntityTypeShape EntityType="QLQuanComModel.CanhBaoNhapHang" Width="1.5" PointX="3" PointY="8.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QLQuanComModel.ChiTietDonHang" Width="1.5" PointX="5.25" PointY="4.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QLQuanComModel.DonHang" Width="1.5" PointX="3" PointY="4.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="QLQuanComModel.KhachHang" Width="1.5" PointX="0.625" PointY="2.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="QLQuanComModel.MonAn" Width="1.5" PointX="7.75" PointY="7.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="QLQuanComModel.NguyenLieu" Width="1.5" PointX="0.75" PointY="9" IsExpanded="true" />
+        <EntityTypeShape EntityType="QLQuanComModel.sysdiagram" Width="1.5" PointX="9.75" PointY="9.75" IsExpanded="true" />
+        <AssociationConnector Association="QLQuanComModel.FK__CanhBaoNh__MaNgu__71D1E811" ManuallyRouted="false" />
+        <AssociationConnector Association="QLQuanComModel.FK__ChiTietDon__MaDH__6383C8BA" ManuallyRouted="false" />
+        <AssociationConnector Association="QLQuanComModel.FK__DonHang__MaKH__5EBF139D" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="QLQuanComModel.BanAn" Width="1.5" PointX="5.375" PointY="10.75" />
+        <EntityTypeShape EntityType="QLQuanComModel.NhanVien" Width="1.5" PointX="12.375" PointY="0.75" />
+        <EntityTypeShape EntityType="QLQuanComModel.admin" Width="1.5" PointX="0.75" PointY="12.75" />
+        <EntityTypeShape EntityType="QLQuanComModel.ChiTietHoaDon" Width="1.5" PointX="14.625" PointY="10.25" />
+        <EntityTypeShape EntityType="QLQuanComModel.DatBan" Width="1.5" PointX="2.875" PointY="0.75" />
+        <EntityTypeShape EntityType="QLQuanComModel.ThanhToan" Width="1.5" PointX="14.625" PointY="7.125" />
+        <AssociationConnector Association="QLQuanComModel.FK__ChiTietHo__MaMon__7E02B4CC" />
+        <AssociationConnector Association="QLQuanComModel.FK_DatBan_KhachHang" />
+        <EntityTypeShape EntityType="QLQuanComModel.HoaDon" Width="1.5" PointX="2.875" PointY="15.5" />
+        <AssociationConnector Association="QLQuanComModel.FK__ChiTietHoa__MaHD__7D0E9093" />
+        <AssociationConnector Association="QLQuanComModel.FK__ThanhToan__MaHD__01D345B0" />
+        <AssociationConnector Association="QLQuanComModel.FK_HoaDon_KhachHang" />
+        <EntityTypeShape EntityType="QLQuanComModel.CauHinhHeThong" Width="1.5" PointX="5.375" PointY="0.75" />
+        </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

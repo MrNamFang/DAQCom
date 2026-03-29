@@ -1,0 +1,53 @@
+﻿
+@model DAQCom.Models.MonAn
+@{ Layout = null; }
+
+<div class="modal-header bg-warning text-dark">
+    <h5 class="modal-title">Cập Nhật Món Ăn</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+<div class="modal-body">
+    @using (Html.BeginForm("Edit", "MonAnAdmin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.MaMon)
+        @Html.HiddenFor(m => m.HinhAnh)
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="fw-bold">Tên món</label>
+                @Html.TextBoxFor(m => m.TenMon, new { @class = "form-control", required = "required" })
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="fw-bold">Loại món</label>
+                @Html.DropDownListFor(m => m.LoaiMon, (SelectList)ViewBag.LoaiMonList, new { @class = "form-select" })
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="fw-bold">Giá bán</label>
+            @Html.TextBoxFor(m => m.Gia, new { @class = "form-control", type = "number" })
+        </div>
+
+        <div class="row mb-3 align-items-center">
+            <div class="col-3 text-center">
+                <img src="~/Content/Images/@Model.HinhAnh" class="img-thumbnail" style="width:70px; height:70px; object-fit:cover;" />
+            </div>
+            <div class="col-9">
+                <label class="fw-bold">Chọn hình mới (nếu muốn thay đổi)</label>
+                <input type="file" name="HinhAnhMoi" class="form-control" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="fw-bold">Mô tả</label>
+            @Html.TextAreaFor(m => m.MoTa, new { @class = "form-control", rows = 3 })
+        </div>
+
+        <div class="text-end">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-warning">Cập nhật</button>
+        </div>
+    }
+</div>

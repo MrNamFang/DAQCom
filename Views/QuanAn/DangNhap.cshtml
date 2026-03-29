@@ -1,0 +1,153 @@
+﻿@* Giữ nguyên phần Layout, Style và reCAPTCHA Script đầu trang của bạn *@
+@{
+    ViewBag.Title = "Đăng Nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string siteKey = System.Web.Configuration.WebConfigurationManager.AppSettings["reCaptchaSiteKey"];
+}
+
+@* Copy lại phần <style> của bạn vào đây *@
+<style>
+    .login-container {
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 30px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    .btn-login {
+        background-color: #d32f2f;
+        color: white;
+        font-weight: bold;
+        height: 45px;
+        width: 100%;
+        border: none;
+        border-radius: 5px;
+        transition: 0.3s;
+    }
+
+        .btn-login:hover {
+            background-color: #b71c1c;
+            transform: translateY(-2px);
+        }
+
+    .social-login {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn-social {
+        flex: 1;
+        height: 40px;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .btn-google {
+        background-color: #dd4b39;
+    }
+
+    .password-wrapper {
+        position: relative;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 15px;
+        top: 12px;
+        cursor: pointer;
+        color: #666;
+    }
+
+    .captcha-wrapper {
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: center;
+    }
+</style>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+<div class="login-container">
+    <h3 class="text-center fw-bold mb-4">ĐĂNG NHẬP</h3>
+
+    @if (TempData["ThongBao"] != null)
+    {
+        <div class="alert alert-success text-center small">@TempData["ThongBao"]</div>
+    }
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger text-center small">@ViewBag.Error</div>
+    }
+
+    @* --- ĐƯA FORM MỞ KHÓA VÀO ĐÂY --- *@
+    @if (ViewBag.ShowUnlock == true)
+    {
+        <div class="alert alert-warning border-warning mb-4">
+            @using (Html.BeginForm("MoKhoa", "QuanAn", FormMethod.Post))
+            {
+                <input type="hidden" name="TenDangNhap" value="@Request["TenDangNhap"]" />
+                <label class="small fw-bold mb-1">Mã OTP đã gửi đến Email của bạn:</label>
+                <div class="input-group">
+                    <input type="text" name="maOTP" class="form-control form-control-sm" placeholder="Nhập 6 số" required />
+                    <button class="btn btn-danger btn-sm" type="submit">XÁC NHẬN MỞ KHÓA</button>
+                </div>
+            }
+        </div>
+    }
+
+    @using (Html.BeginForm("DangNhap", "QuanAn", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+
+        <div class="mb-3">
+            <label class="fw-bold mb-1 small">Tài khoản</label>
+            <input type="text" name="TenDangNhap" class="form-control" required placeholder="Nhập tên đăng nhập" value="@Request["TenDangNhap"]" />
+        </div>
+
+        <div class="mb-3">
+            <label class="fw-bold mb-1 small">Mật khẩu</label>
+            <div class="password-wrapper">
+                <input type="password" name="MatKhau" id="password-field" class="form-control" required placeholder="Nhập mật khẩu" />
+                <i class="fa fa-eye toggle-password" id="eye-icon" onclick="togglePassword()"></i>
+            </div>
+        </div>
+
+        <div class="mb-3 text-end">
+            <a href="@Url.Action("QuenMatKhau", "QuanAn")" class="text-decoration-none text-muted small">Quên mật khẩu?</a>
+        </div>
+
+        <div class="captcha-wrapper">
+            <div class="g-recaptcha" data-sitekey="@siteKey"></div>
+        </div>
+
+        <button type="submit" class="btn btn-login mt-2">ĐĂNG NHẬP</button>
+    }
+
+    <div class="text-center mt-3 text-muted small">hoặc đăng nhập nhanh bằng</div>
+    <div class="social-login">
+        <a href="@Url.Action("LoginGoogle", "QuanAn")" class="btn-social btn-google w-100 d-flex align-items-center justify-content-center text-decoration-none">
+            <i class="fab fa-google me-2"></i> Google
+        </a>
+    </div>
+
+    <div class="text-center mt-4 small">
+        Chưa có tài khoản? <a href="@Url.Action("DangKy", "QuanAn")" class="text-primary fw-bold text-decoration-none">Đăng ký ngay</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function togglePassword() {
+            const f = document.getElementById("password-field"), i = document.getElementById("eye-icon");
+            if (f.type === "password") { f.type = "text"; i.className = "fa fa-eye-slash toggle-password"; }
+            else { f.type = "password"; i.className = "fa fa-eye toggle-password"; }
+        }
+    </script>
+}

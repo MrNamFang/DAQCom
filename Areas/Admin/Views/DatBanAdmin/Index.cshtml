@@ -1,0 +1,119 @@
+﻿@model IEnumerable<DAQCom.Models.DatBan>
+
+@{
+    ViewBag.Title = "Quản Lý Đặt Bàn";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <a href="@Url.Action("Index", "HomeAdmin")" class="text-decoration-none text-secondary small">
+                <i class="fa fa-arrow-left"></i> Quay lại 
+            </a>
+            <h2 class="text-primary fw-bold mt-1">Danh Sách Đặt Bàn</h2>
+            <p class="text-muted small mb-0">Quản lý các yêu cầu đặt bàn từ khách hàng</p>
+        </div>
+    </div>
+
+    <div class="card shadow border-0 rounded-3">
+        <div class="card-header bg-white py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-uppercase">
+                <i class="fa fa-calendar-check me-2"></i>Dữ liệu đặt bàn
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-secondary">
+                        <tr>
+                            <th class="ps-4">Khách hàng</th>
+                            <th>Liên hệ</th>
+                            <th>Ngày giờ đến</th>
+                            <th class="text-center">Số khách</th>
+                            <th>Trạng thái</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4">
+                                        <span class="fw-bold text-dark">@item.HoTen</span><br />
+                                        <small class="text-muted">
+                                            <i class="fa fa-sticky-note me-1"></i>
+                                            @(string.IsNullOrEmpty(item.GhiChu) ? "Không có ghi chú" : item.GhiChu)
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <i class="fa fa-phone text-muted me-1"></i> @item.SDT
+                                    </td>
+                                    <td>
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-bold text-primary">@item.NgayDen.ToString("dd/MM/yyyy")</span>
+                                            <span class="small text-muted">@item.NgayDen.ToString("HH:mm")</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary rounded-pill px-3">@item.SoNguoi</span>
+                                    </td>
+                                    <td>
+                                        @if (item.TrangThai == 0)
+                                        {
+                                            <span class="badge bg-warning text-dark border border-warning">Chờ xác nhận</span>
+                                        }
+                                        else if (item.TrangThai == 1)
+                                        {
+                                            <span class="badge bg-success border border-success">Đã xác nhận</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger border border-danger">Đã hủy</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (item.TrangThai == 0)
+                                        {
+                                            <a href="@Url.Action("DuyetBan", new { id = item.MaDatBan })"
+                                               class="btn btn-sm btn-success shadow-sm"
+                                               title="Duyệt đơn này">
+                                                <i class="fa fa-check"></i>
+                                            </a>
+                                            <a href="@Url.Action("HuyBan", new { id = item.MaDatBan })"
+                                               class="btn btn-sm btn-danger shadow-sm ms-1"
+                                               title="Hủy đơn này"
+                                               onclick="return confirm('Bạn có chắc muốn HỦY lịch đặt bàn này không?');">
+                                                <i class="fa fa-times"></i>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a href="@Url.Action("Xoa", new { id = item.MaDatBan })"
+                                               class="btn btn-sm btn-outline-secondary"
+                                               title="Xóa vĩnh viễn"
+                                               onclick="return confirm('Xóa vĩnh viễn dữ liệu này? Hành động không thể hoàn tác.');">
+                                                <i class="fa fa-trash"></i>
+                                            </a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="fa fa-inbox fa-3x mb-3 text-gray-300"></i>
+                                    <p class="m-0">Chưa có dữ liệu đặt bàn nào.</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

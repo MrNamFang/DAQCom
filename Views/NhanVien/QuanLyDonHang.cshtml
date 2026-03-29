@@ -1,0 +1,94 @@
+﻿@model IEnumerable<DAQCom.Models.HoaDon>
+
+@{
+    ViewBag.Title = "Bếp - Quản lý đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Hoặc layout riêng của admin nếu có
+}
+
+<meta http-equiv="refresh" content="15">
+
+<div class="container-fluid mt-4">
+    <h2 class="text-center mb-4 text-primary">👨‍🍳 MÀN HÌNH BẾP & NHÂN VIÊN</h2>
+
+    <div class="alert alert-warning text-center">
+        Trang sẽ tự động cập nhật sau mỗi 15 giây. <a href="javascript:location.reload()">Cập nhật ngay</a>
+    </div>
+
+    <div class="row">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                // Phân màu: Đơn mới (Vàng), Đang nấu (Xanh dương)
+                string cardClass = item.TrangThai == 0 ? "border-warning" : "border-primary";
+                string bgHead = item.TrangThai == 0 ? "bg-warning text-dark" : "bg-primary text-white";
+
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm @cardClass" style="border-width: 2px;">
+
+                        <div class="card-header @bgHead d-flex justify-content-between align-items-center">
+                            <h5 class="m-0">#@item.MaHD</h5>
+                            <span class="badge bg-white text-dark">
+                                @(item.TrangThai == 0 ? "MỚI" : "ĐANG NẤU")
+                            </span>
+                        </div>
+
+                        <div class="card-body">
+                            <p class="mb-1"><strong>Khách:</strong> @(item.KhachHang != null ? item.KhachHang.TenKH : "Khách vãng lai")</p>
+                            <p class="mb-1 text-muted small">Thời gian: @item.NgayDat.Value.ToString("HH:mm dd/MM")</p>
+                            <hr />
+
+                            <h6 class="fw-bold">Thực đơn:</h6>
+                            <ul class="list-group list-group-flush">
+                                @foreach (var ct in item.ChiTietHoaDons)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between px-0">
+                                        <span>
+                                            <span class="fw-bold text-danger">x@(ct.SoLuong)</span>
+                                            @ct.MonAn.TenMon
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                            <div class="mt-2 text-end fw-bold text-success">
+                                Tổng: @((item.TongTien ?? 0).ToString("N0")) đ
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-white d-flex gap-2">
+                            @if (item.TrangThai == 0)
+                            {
+                                // Nút nhận đơn -> chuyển sang trạng thái 1 (Đang làm)
+                                <a href="@Url.Action("CapNhatTrangThai", "NhanVien", new { idHD = item.MaHD, trangThai = 1 })"
+                                   class="btn btn-primary flex-fill">
+                                    <i class="fa fa-fire"></i> Nhận nấu
+                                </a>
+
+                                // Nút hủy đơn
+                                <a href="@Url.Action("CapNhatTrangThai", "NhanVien", new { idHD = item.MaHD, trangThai = -1 })"
+                                   class="btn btn-outline-danger" onclick="return confirm('Hủy đơn này?')">
+                                    Hủy
+                                </a>
+                            }
+                            else if (item.TrangThai == 1)
+                            {
+                                // Nút hoàn tất -> chuyển sang trạng thái 2 (Đã xong/Giao)
+                                <a href="@Url.Action("CapNhatTrangThai", "NhanVien", new { idHD = item.MaHD, trangThai = 2 })"
+                                   class="btn btn-success flex-fill">
+                                    <i class="fa fa-check"></i> Xong món
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center text-muted py-5">
+                <h4>Hiện tại không có đơn hàng nào cần xử lý.</h4>
+                <i class="fa fa-coffee fa-3x mt-3"></i>
+            </div>
+        }
+    </div>
+</div>

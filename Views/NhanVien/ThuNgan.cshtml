@@ -1,0 +1,416 @@
+﻿@model List<DAQCom.Models.BanAnDTO>
+@{
+    ViewBag.Title = "Quản Lý Thu Ngân";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listOnline = ViewBag.ListOnline as List<DAQCom.Models.HoaDon>;
+    var nhanVien = Session["NhanVien"] as DAQCom.Models.NhanVien;
+
+    double dtNgay = ViewBag.DoanhThuNgay ?? 0;
+    double dtThang = ViewBag.DoanhThuThang ?? 0;
+    double target = ViewBag.TargetThang ?? 1;
+    double phanTram = Math.Round((dtThang / target) * 100, 1);
+
+}
+
+<style>
+    /* RESET & NỀN */
+    header, nav, footer, .navbar {
+        display: none !important;
+    }
+
+    body {
+        background-color: #f4f7f6 !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+    }
+
+    /* NAV CHUẨN POS */
+    .pos-header {
+        background: #1a1d20;
+        color: white;
+        padding: 12px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    /* STATS CARDS (Bảng thống kê nhanh) */
+    .main-content {
+        margin-top: 80px;
+        padding: 25px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border-bottom: 4px solid #ddd;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-right: 15px;
+    }
+
+    /* DANH SÁCH BÀN CHỜ */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 30px 0 20px;
+    }
+
+    .section-title {
+        font-weight: 700;
+        color: #333;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-left: 5px solid #ffc107;
+        padding-left: 15px;
+    }
+
+    /* CARD BÀN ĐANG TÍNH TIỀN */
+    .cashier-card {
+        background: white;
+        border-radius: 15px;
+        border: none;
+        transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+        overflow: hidden;
+        cursor: pointer;
+        position: relative;
+    }
+
+        .cashier-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 14px 28px rgba(0,0,0,0.1);
+        }
+
+    .card-top {
+        background: #fff9e6;
+        padding: 20px;
+        text-align: center;
+        border-bottom: 1px dashed #ffeeba;
+    }
+
+    .card-bottom {
+        padding: 15px;
+        background: white;
+        text-align: center;
+    }
+
+    .table-number {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #856404;
+    }
+
+    /* ĐƠN ONLINE - PHONG CÁCH TICKET */
+    .online-ticket {
+        background: white;
+        border-left: 6px solid #0dcaf0;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .ticket-body {
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
+<div class="pos-header">
+    <div class="d-flex align-items-center">
+        <div class="bg-warning text-dark rounded-circle p-2 me-3">
+            <i class="fas fa-wallet fa-lg"></i>
+        </div>
+        <div>
+            <h5 class="m-0 fw-bold">HỆ THỐNG THU NGÂN</h5>
+            <small class="text-warning"><i class="fas fa-circle fa-xs me-1"></i> Đang hoạt động</small>
+        </div>
+    </div>
+
+    <div class="d-none d-lg-flex gap-2">
+        <button class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="xemBaoCaoThang()">
+            <i class="fas fa-chart-bar me-1"></i> Doanh thu quán
+        </button>
+    </div>
+
+    <div class="d-flex align-items-center gap-4">
+        <div class="text-end d-none d-md-block">
+            <span class="d-block fw-bold">@DateTime.Now.ToString("HH:mm")</span>
+            <small class="text-white-50">@DateTime.Now.ToString("dd/MM/yyyy")</small>
+        </div>
+        <div class="vr mx-2 text-white-50"></div>
+        <div class="text-end">
+            <div class="fw-bold">@(nhanVien?.HoTen ?? "Cashier")</div>
+            <a href="@Url.Action("DangXuat", "QuanAn")" class="text-danger text-decoration-none small fw-bold">Rời máy <i class="fas fa-sign-out-alt"></i></a>
+        </div>
+    </div>
+</div>
+
+<div class="main-content container-fluid">
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card" style="border-color: #198754;">
+                <div class="stat-icon bg-success-subtle text-success"><i class="fas fa-hand-holding-usd"></i></div>
+                <div>
+                    <h4 class="m-0 fw-bold">@((ViewBag.DoanhThuNgay ?? 0).ToString("#,0"))đ</h4>
+                    <small class="text-muted">Doanh thu hôm nay</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card" style="border-color: #0dcaf0;">
+                <div class="stat-icon bg-info-subtle text-info"><i class="fas fa-calendar-check"></i></div>
+                <div>
+                    <h4 class="m-0 fw-bold">@((ViewBag.DoanhThuThang ?? 0).ToString("#,0"))đ</h4>
+                    <small class="text-muted">Doanh thu tháng @DateTime.Now.Month</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card" style="border-color: #6610f2; cursor: pointer;" onclick="setTarget()">
+                @* Biểu đồ tròn nhỏ mô phỏng bằng CSS *@
+                <div class="stat-icon" style="background: conic-gradient(#6610f2 @(phanTram)%, #e9ecef 0); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold;">
+                        @phanTram%
+                    </div>
+                </div>
+                <div class="ms-2">
+                    <h4 class="m-0 fw-bold">Mục tiêu</h4>
+                    <small class="text-muted">Target: @((ViewBag.TargetThang ?? 0).ToString("#,0"))đ</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card" style="border-color: #ffc107;">
+                <div class="stat-icon bg-warning-subtle text-warning"><i class="fas fa-bell"></i></div>
+                <div>
+                    <h4 class="m-0 fw-bold">@(Model?.Count() ?? 0) Bàn chờ</h4>
+                    <small class="text-muted">@(listOnline?.Count() ?? 0) đơn online mới</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="section-header">
+                <h5 class="section-title">Yêu cầu thanh toán tại bàn</h5>
+                <button onclick="location.reload()" class="btn btn-sm btn-outline-secondary rounded-pill">
+                    <i class="fas fa-sync-alt"></i> Làm mới
+                </button>
+            </div>
+
+            <div class="row g-4">
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var ban in Model)
+                    {
+                        <div class="col-md-4 col-sm-6">
+                            <div class="cashier-card shadow-sm" onclick="xuatHoaDon(@ban.MaBan)">
+                                <div class="card-top">
+                                    <div class="table-number">@ban.TenBan</div>
+                                    <span class="badge rounded-pill bg-danger animate-pulse">CHỜ THANH TOÁN</span>
+                                </div>
+                                <div class="card-bottom">
+                                    <button class="btn btn-warning w-100 fw-bold rounded-pill">
+                                        <i class="fas fa-file-invoice-dollar me-2"></i> XUẤT HÓA ĐƠN
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12 text-center py-5 bg-white rounded-3 border">
+                        <img src="https://cdn-icons-png.flaticon.com/512/5057/5057380.png" width="80" class="opacity-25 mb-3">
+                        <p class="text-muted fw-bold">Hiện tại không có bàn nào yêu cầu thanh toán.</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="section-header">
+                <h5 class="section-title" style="border-left-color: #0dcaf0;">Đơn mang về / Online</h5>
+            </div>
+
+            <div class="online-list">
+                @if (listOnline != null && listOnline.Any())
+                {
+                    foreach (var hd in listOnline)
+                    {
+                        <div class="online-ticket shadow-sm">
+                            <div class="ticket-body">
+                                <div>
+                                    <div class="fw-bold text-primary">#@hd.MaHD</div>
+                                    <div class="small fw-bold">@(hd.KhachHang?.TenKH ?? hd.TenNguoiNhan ?? "Khách vãng lai")</div>
+                                    <div class="text-danger fw-bold">@((hd.TongTien ?? 0).ToString("#,0"))đ</div>
+                                </div>
+                                <div class="text-end">
+                                    <button class="btn btn-info btn-sm text-white mb-1 w-100" onclick="xemDonOnline(@hd.MaHD)">Xem</button>
+                                    <button class="btn btn-success btn-sm w-100" onclick="xongDonOnline(@hd.MaHD)">Xong</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center py-4 bg-white rounded-3 border">
+                        <p class="text-muted small m-0">Không có đơn online mới.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@* Bạn cần thêm một Modal vào đây nếu muốn dùng nút Xem *@
+<div class="modal fade" id="modalHoaDon" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="modalContent">
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // 1. Xử lý nút "XUẤT HÓA ĐƠN" cho Bàn
+    function xuatHoaDon(maBan) {
+        if (!confirm("Xác nhận thanh toán cho bàn này?")) return;
+
+        $.ajax({
+            url: '/NhanVien/XacNhanThanhToanByBan',
+            type: 'POST',
+            data: { idBan: maBan },
+            success: function (res) {
+                if (res.success) {
+                    alert("Thanh toán thành công!");
+                    location.reload();
+                } else {
+                    alert("Lỗi: " + res.msg);
+                }
+            },
+            error: function () {
+                alert("Lỗi kết nối đến máy chủ.");
+            }
+        });
+    }
+
+    // 2. Xử lý nút "Xong" cho Đơn Online
+    function xongDonOnline(maHD) {
+        if (!confirm("Xác nhận đơn hàng online này đã hoàn thành?")) return;
+
+        $.ajax({
+            url: '/NhanVien/XacNhanGiaoHang',
+            type: 'POST',
+            data: { maHD: maHD },
+            success: function (res) {
+                if (res.success) {
+                    location.reload();
+                } else {
+                    alert("Lỗi: " + res.msg);
+                }
+            },
+            error: function () {
+                alert("Lỗi hệ thống khi xác nhận giao hàng.");
+            }
+        });
+    }
+
+    // 3. Nút "Xem" đơn online
+    function xemDonOnline(maHD) {
+        // Gọi PartialView hoặc lấy dữ liệu đơn hàng
+        $.get('/NhanVien/XemHoaDon?maHD=' + maHD, function (data) {
+            $('#modalContent').html(data);
+            var myModal = new bootstrap.Modal(document.getElementById('modalHoaDon'));
+            myModal.show();
+        }).fail(function () {
+            alert("Không thể tải thông tin đơn hàng.");
+        });
+    }
+
+    // Hàm ấn vào Target để nhập mục tiêu mới
+    function setTarget() {
+    let currentTarget = "@(ViewBag.TargetThang ?? 50000000)";
+    let val = prompt("Nhập doanh thu mục tiêu tháng này:", currentTarget);
+
+    if (val != null && val !== "") {
+        let newTarget = parseInt(val.replace(/,/g, '')); // Loại bỏ dấu phẩy nếu có
+
+        if (isNaN(newTarget)) {
+            alert("Vui lòng nhập số hợp lệ!");
+            return;
+        }
+
+        // Gửi dữ liệu về Server bằng Ajax
+        $.ajax({
+            url: '/NhanVien/CapNhatTarget', // Bạn cần tạo Action này ở Bước 2
+            type: 'POST',
+            data: { target: newTarget },
+            success: function (res) {
+                if (res.success) {
+                    alert("Cập nhật mục tiêu thành công!");
+                    location.reload(); // Load lại để tính lại % dựa trên số mới
+                } else {
+                    alert("Lỗi: " + res.msg);
+                }
+            },
+            error: function () {
+                alert("Không thể kết nối đến máy chủ để lưu mục tiêu.");
+            }
+        });
+    }
+}
+    function confirmPayment(maHD) {
+        // Lấy giá trị từ Radio Button hoặc Select mà người dùng chọn
+        var pt = $("input[name='phuongThucThanhToan']:checked").val();
+
+        $.ajax({
+            url: '/NhanVien/XacNhanThanhToan',
+            type: 'POST',
+            data: {
+                maHD: maHD,
+                phuongThuc: pt // Gửi phương thức đã chọn lên đây
+            },
+            success: function (res) {
+                if (res.success) {
+                    alert("Thanh toán thành công bằng: " + pt);
+                    location.reload();
+                } else {
+                    alert(res.msg);
+                }
+            }
+        });
+    }
+    // Hàm xem báo cáo chi tiết
+    function xemBaoCaoThang() {
+        // Bạn có thể chuyển hướng sang trang báo cáo (Ví dụ: /QuanLy/BaoCao)
+        alert("Tính năng đang mở rộng: Xem doanh thu chi tiết theo Tháng/Năm");
+    }
+
+    // Tự động làm mới mỗi 30 giây để cập nhật đơn mới
+    setInterval(() => { location.reload(); }, 30000);
+</script>

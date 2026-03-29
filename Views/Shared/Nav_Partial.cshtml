@@ -1,0 +1,126 @@
+﻿@using DAQCom.Models
+@{
+    // 1. Lấy thông tin giỏ hàng
+    var gioHang = Session["GioHang"] as List<GioHang>;
+    int cartCount = gioHang?.Sum(x => x.iSoLuong) ?? 0;
+
+    // 2. Lấy thông tin khách hàng từ Session
+    var khachHang = Session["UserKhachHang"] as KhachHang;
+}
+
+<nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="@Url.Action("Index", "QuanAn", new { area = "" })">
+            <img src="~/Content/Images/FullLogo.jpg" alt="Logo PNK" />
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+            <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "QuanAn", new { area = "" })">Trang Chủ</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "DatBan", new { area = "" })">Đặt Bàn</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("DatMon", "QuanAn", new { area = "" })">Đặt Món</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("LienHe", "QuanAn", new { area = "" })">Liên Hệ</a>
+                </li>
+            </ul>
+
+            @using (Html.BeginForm("TimKiem", "QuanAn", FormMethod.Get, new { @class = "d-flex me-3" }))
+            {
+                <input class="form-control form-control-sm me-2" type="search" name="timkiem"
+                       placeholder="Tìm món ăn..." style="width:180px; border-radius:20px;">
+                <button class="btn btn-outline-warning btn-sm btn-search rounded-circle" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+            }
+
+            <ul class="navbar-nav align-items-center">
+
+                @if (khachHang != null)
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center"
+                           href="#" id="userDrop" role="button" data-bs-toggle="dropdown"
+                           style="color: #ffc107 !important;">
+
+                            <div class="rounded-circle bg-secondary d-flex justify-content-center align-items-center me-2"
+                                 style="width:30px; height:30px; font-size:14px; color:white;">
+                                @(string.IsNullOrEmpty(khachHang.TenKH) ? "U" : khachHang.TenKH.Substring(0, 1).ToUpper())
+                            </div>
+
+                            <span>Hello, @khachHang.TenKH</span>
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDrop">
+                            <li>
+                                <span class="dropdown-item-text text-muted small">
+                                    Tài khoản khách hàng
+                                </span>
+                            </li>
+
+                            <li><hr class="dropdown-divider"></li>
+
+                            <li>
+                                <a class="dropdown-item"
+                                   href="@Url.Action("ThongTinCaNhan", "QuanAn", new { area = "" })">
+                                    <i class="fas fa-user-cog me-2"></i> Thông tin cá nhân
+                                </a>
+                            </li>
+
+                            <li><hr class="dropdown-divider"></li>
+
+                            <!-- ✅ FIX LOGOUT Ở ĐÂY -->
+                            <li>
+                                <a class="dropdown-item text-danger"
+                                   href="@Url.Action("DangXuat", "QuanAn", new { area = "" })">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           href="@Url.Action("DangNhap", "QuanAn", new { area = "" })">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link"
+                           href="@Url.Action("DangKy", "QuanAn", new { area = "" })">
+                            <i class="bi bi-person-plus me-1"></i> Đăng ký
+                        </a>
+                    </li>
+                }
+
+                <li class="nav-item ms-2">
+                    <a class="nav-link position-relative btn btn-outline-light border-0"
+                       href="@Url.Action("GioHang", "GioHang", new { area = "" })">
+                        <i class="bi bi-cart3 fs-5"></i>
+
+                        <span id="cart-count"
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light">
+                            @cartCount
+                        </span>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>

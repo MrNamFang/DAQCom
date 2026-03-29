@@ -1,0 +1,159 @@
+﻿@using DAQCom.Models
+@{
+    ViewBag.Title = "Đăng Ký Tài Khoản";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string siteKey = System.Web.Configuration.WebConfigurationManager.AppSettings["reCaptchaSiteKey"];
+}
+
+<style>
+    body {
+        background-color: #f0f2f5;
+    }
+
+    .card-auth {
+        border: none;
+        border-radius: 1rem;
+    }
+
+    .btn-register {
+        border-radius: 50px;
+        padding: 0.75rem 1rem;
+        font-weight: bold;
+    }
+
+    .captcha-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 15px;
+    }
+    /* Tùy chỉnh nhỏ để thanh độ mạnh khớp với style chung */
+    .strength-meter {
+        height: 6px;
+        border-radius: 3px;
+        transition: all 0.3s ease;
+    }
+</style>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card card-auth shadow">
+                <div class="card-body p-5">
+                    <h2 class="text-center fw-bold mb-4 text-success">Đăng Ký Tài Khoản</h2>
+
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger text-center small">@ViewBag.Error</div>
+                    }
+
+                    @using (Html.BeginForm("DangKy", "QuanAn", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-floating mb-3">
+                            <select name="LoaiTaiKhoan" class="form-select" id="roleSelect">
+                                <option value="KhachHang">Tôi là Khách Hàng</option>
+                                <option value="NhanVien">Tôi là Nhân Viên</option>
+                            </select>
+                            <label for="roleSelect">Bạn muốn đăng ký với vai trò?</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="text" name="HoTen" class="form-control" required placeholder="Họ tên" />
+                            <label>Họ và Tên</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="email" name="Email" class="form-control" required placeholder="Email" />
+                            <label>Email</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="text" name="SDT" class="form-control" required placeholder="SĐT" />
+                            <label>Số điện thoại</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="text" name="TenDangNhap" class="form-control" required placeholder="Tên đăng nhập" />
+                            <label>Tên Đăng Nhập</label>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-floating">
+                                <input type="password" name="MatKhau" id="txtPassword" class="form-control" required placeholder="Mật khẩu" onkeyup="checkStrength(this.value)" />
+                                <label>Mật Khẩu</label>
+                            </div>
+
+                            <div class="progress mt-2 strength-meter">
+                                <div id="strengthBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-1">
+                                <small id="strengthText" class="text-muted small"></small>
+                                <small class="text-muted" style="font-size: 10px;">Tối thiểu 8 ký tự</small>
+                            </div>
+                        </div>
+
+                        <div class="captcha-wrapper">
+                            <div class="g-recaptcha" data-sitekey="@siteKey"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100 btn-register shadow-sm mt-3">TIẾP TỤC XÁC THỰC OTP</button>
+                    }
+
+                    <div class="text-center mt-4">
+                        Đã có tài khoản? <a href="@Url.Action("DangNhap", "QuanAn")" class="text-success fw-bold text-decoration-none">Đăng nhập ngay</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function checkStrength(password) {
+        let strength = 0;
+        let bar = document.getElementById('strengthBar');
+        let text = document.getElementById('strengthText');
+
+        if (password.length === 0) {
+            bar.style.width = '0%';
+            text.innerText = '';
+            return;
+        }
+
+        if (password.length >= 8) strength += 1;
+        if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength += 1;
+        if (password.match(/\d/)) strength += 1;
+        if (password.match(/[^a-zA-Z\d]/)) strength += 1;
+
+        switch (strength) {
+            case 0:
+            case 1:
+                bar.style.width = '25%';
+                bar.className = 'progress-bar bg-danger';
+                text.innerText = 'Yếu';
+                text.className = 'text-danger small fw-bold';
+                break;
+            case 2:
+                bar.style.width = '50%';
+                bar.className = 'progress-bar bg-warning';
+                text.innerText = 'Trung bình';
+                text.className = 'text-warning small fw-bold';
+                break;
+            case 3:
+                bar.style.width = '75%';
+                bar.className = 'progress-bar bg-info';
+                text.innerText = 'Mạnh';
+                text.className = 'text-info small fw-bold';
+                break;
+            case 4:
+                bar.style.width = '100%';
+                bar.className = 'progress-bar bg-success';
+                text.innerText = 'Rất mạnh';
+                text.className = 'text-success small fw-bold';
+                break;
+        }
+    }
+</script>

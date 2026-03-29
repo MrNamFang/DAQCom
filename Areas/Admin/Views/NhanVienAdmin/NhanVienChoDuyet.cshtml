@@ -1,0 +1,114 @@
+﻿@using DAQCom.Models
+@model List<NhanVien>
+@{
+    ViewBag.Title = (ViewBag.CurrentTab == "ChoDuyet") ? "Nhân viên Chờ Duyệt" : "Nhân viên Đã Duyệt";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+    // Xác định tab hiện tại (dựa trên Viewbag set trong Controller)
+    string currentTab = ViewBag.CurrentTab ?? "ChoDuyet";
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h5 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-users-cog me-2"></i> QUẢN LÝ TÀI KHOẢN NHÂN VIÊN
+        </h5>
+    </div>
+    <div class="card-body">
+
+        @* Thanh Tab Navigator *@
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <a class="nav-link @(currentTab == "ChoDuyet" ? "active" : "")"
+                   href="@Url.Action("NhanVienChoDuyet", "NhanVienAdmin")">
+                    Chờ Duyệt
+                    @if (ViewBag.CountChoDuyet > 0)
+                    {
+                        <span class="badge bg-danger text-white ms-1">@ViewBag.CountChoDuyet</span>
+                    }
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(currentTab == "DaDuyet" ? "active" : "")"
+                   href="@Url.Action("NhanVienDaDuyet", "NhanVienAdmin")">
+                    Đã Duyệt
+                </a>
+            </li>
+        </ul>
+
+        @* Hiển thị thông báo *@
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">@Html.Raw(TempData["SuccessMessage"])</div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+        }
+
+        <h6 class="mb-3 text-muted">@ViewBag.Title: @Model.Count tài khoản</h6>
+
+        @if (Model.Count == 0)
+        {
+            <div class="alert alert-info text-center">
+                @(currentTab == "ChoDuyet" ? "Hiện không có nhân viên nào đang chờ phê duyệt." : "Không có tài khoản nhân viên nào đã được phê duyệt.")
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Mã NV</th>
+                            <th>Họ Tên</th>
+                            <th>Tài Khoản</th>
+                            <th>Chức Vụ</th>
+                            <th>SĐT</th>
+                            <th>Ngày ĐK/Duyệt</th>
+                            @if (currentTab == "ChoDuyet")
+                            {
+                                <th>Thao Tác</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.MaNV</td>
+                                <td>@item.HoTen</td>
+                                <td>@item.TaiKhoan</td>
+                                <td>@item.ChucVu</td>
+                                <td>@item.SDT</td>
+                                <td>@item.NgayTao?.ToString("dd/MM/yyyy HH:mm")</td>
+
+                                @if (currentTab == "ChoDuyet")
+                                {
+                                    <td>
+                                        @* Form Phê duyệt *@
+                                        @using (Html.BeginForm("PheDuyet", "NhanVienAdmin", FormMethod.Post, new { style = "display:inline;" }))
+                                        {
+                                            @Html.Hidden("maNV", item.MaNV)
+                                            <button type="submit" class="btn btn-success btn-sm me-1" onclick="return confirm('Xác nhận phê duyệt tài khoản @item.HoTen?');" title="Phê duyệt">
+                                                <i class="fas fa-check"></i> Duyệt
+                                            </button>
+                                        }
+
+                                        @* Form Từ chối/Xóa *@
+                                        @using (Html.BeginForm("TuChoi", "NhanVienAdmin", FormMethod.Post, new { style = "display:inline;" }))
+                                        {
+                                            @Html.Hidden("maNV", item.MaNV)
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc muốn từ chối và xóa tài khoản @item.HoTen?');" title="Từ chối/Xóa">
+                                                <i class="fas fa-times"></i> Xóa
+                                            </button>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

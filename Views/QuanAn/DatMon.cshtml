@@ -1,0 +1,183 @@
+﻿@using DAQCom.Models
+@{
+    ViewBag.Title = "Đặt Món - Quán Cơm Ngon";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-uppercase" style="color: #d32f2f; border-bottom: 3px solid #ffc107; display: inline-block; padding-bottom: 10px;">
+            THỰC ĐƠN QUÁN CƠM NGON
+        </h2>
+    </div>
+
+    @* --- HELPER HỖ TRỢ HIỂN THỊ MÓN ĂN --- *@
+    @helper RenderMon(IEnumerable<MonAn> dsMon)
+    {
+        if (dsMon != null && dsMon.Any())
+        {
+            foreach (var item in dsMon)
+            {
+                // Xử lý đường dẫn ảnh
+                string imgPath = string.IsNullOrEmpty(item.HinhAnh)
+                                 ? "~/Content/Images/noimage.jpg"
+                                 : $"~/Content/Images/{item.HinhAnh}";
+
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <div class="card shadow-sm h-100 border-0 hover-effect">
+                        <div style="position: relative; overflow: hidden;">
+                            <img src="@Url.Content(imgPath)"
+                                 onerror="this.src='@Url.Content("~/Content/Images/noimage.jpg")'"
+                                 class="card-img-top"
+                                 alt="@item.TenMon"
+                                 style="height: 200px; object-fit: cover; transition: transform 0.3s ease;" />
+                        </div>
+
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold text-dark text-truncate" title="@item.TenMon">
+                                @item.TenMon
+                            </h5>
+
+                            <p class="card-text mb-2">
+                                <strong class="text-danger fs-5">
+                                    @(item.Gia.HasValue ? item.Gia.Value.ToString("N0") : "Liên hệ") đ
+                                </strong>
+                            </p>
+
+                            <p class="card-text text-muted small flex-grow-1">
+                                @(string.IsNullOrEmpty(item.MoTa) ? "Đang cập nhật..." : (item.MoTa.Length > 60 ? item.MoTa.Substring(0, 60) + "..." : item.MoTa))
+                            </p>
+
+                            <div class="d-grid gap-2 mt-2">
+                                <a href="@Url.Action("ChiTietMon", "QuanAn", new { id = item.MaMon })"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-eye"></i> Xem Chi Tiết
+                                </a>
+
+                                <button class="btn btn-warning btn-sm btn-add-cart" data-id="@item.MaMon" type="button">
+                                    <i class="bi bi-cart-plus-fill"></i> Thêm vào Giỏ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-4">
+                <p class="text-muted fst-italic">Món ăn thuộc mục này đang được cập nhật...</p>
+            </div>
+        }
+    }
+
+    @* --- HIỂN THỊ CÁC NHÓM MÓN ĂN --- *@
+
+    @* Món Mặn *@
+    <div class="row mb-3">
+        <h3 class="fw-bold text-primary"><i class="fas fa-drumstick-bite me-2"></i> Món Mặn</h3>
+        <hr class="mb-4" />
+    </div>
+    <div class="row">
+        @RenderMon(ViewBag.MonMan as IEnumerable<MonAn>)
+    </div>
+
+    @* Món Canh *@
+    <div class="row mb-3 mt-5">
+        <h3 class="fw-bold text-success"><i class="fas fa-bowl-food me-2"></i> Món Canh</h3>
+        <hr class="mb-4" />
+    </div>
+    <div class="row">
+        @RenderMon(ViewBag.MonCanh as IEnumerable<MonAn>)
+    </div>
+
+    @* Món Chay *@
+    <div class="row mb-3 mt-5">
+        <h3 class="fw-bold text-success"><i class="fas fa-leaf me-2"></i> Món Chay</h3>
+        <hr class="mb-4" />
+    </div>
+    <div class="row">
+        @RenderMon(ViewBag.MonChay as IEnumerable<MonAn>)
+    </div>
+
+    @* Món Ăn Kèm *@
+    <div class="row mb-3 mt-5">
+        <h3 class="fw-bold text-warning text-dark"><i class="fas fa-utensils me-2"></i> Món Ăn Kèm</h3>
+        <hr class="mb-4" />
+    </div>
+    <div class="row">
+        @RenderMon(ViewBag.MonAnKem as IEnumerable<MonAn>)
+    </div>
+
+    @* Tráng Miệng *@
+    <div class="row mb-3 mt-5">
+        <h3 class="fw-bold text-info text-dark"><i class="fas fa-ice-cream me-2"></i> Tráng Miệng</h3>
+        <hr class="mb-4" />
+    </div>
+    <div class="row">
+        @RenderMon(ViewBag.MonTrangMieng as IEnumerable<MonAn>)
+    </div>
+
+    @* Nước Uống *@
+    <div class="row mb-3 mt-5">
+        <h3 class="fw-bold text-danger"><i class="fas fa-wine-glass-alt me-2"></i> Nước Uống</h3>
+        <hr class="mb-4" />
+    </div>
+    <div class="row">
+        @RenderMon(ViewBag.NuocUong as IEnumerable<MonAn>)
+    </div>
+</div>
+
+<style>
+    .hover-effect:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+        transition: all 0.3s ease;
+    }
+
+    .hover-effect img:hover {
+        transform: scale(1.05);
+    }
+</style>
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+            $('.btn-add-cart').click(function () {
+                var id = $(this).data('id');
+                var btn = $(this);
+                btn.prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> Đang thêm...');
+
+                $.ajax({
+                    url: '/GioHang/ThemGioHang',
+                    type: 'POST', // Đổi thành POST cho bảo mật và khớp Controller
+                    data: { maMon: id }, // Tên biến phải là 'maMon' để khớp Controller
+                    success: function (res) {
+                        if (res.success) {
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                            Toast.fire({
+                                icon: 'success',
+                                title: 'Đã thêm vào giỏ hàng!'
+                            });
+
+                            // Cập nhật số lượng trên icon giỏ hàng (nếu bạn có ID này trên Layout)
+                            if (res.tongSL) $('#cart-count').text(res.tongSL);
+                        }
+                    },
+                    error: function () {
+                        Swal.fire('Lỗi', 'Không thể kết nối đến máy chủ!', 'error');
+                    },
+                    complete: function () {
+                        btn.prop('disabled', false).html('<i class="bi bi-cart-plus-fill"></i> Thêm vào Giỏ');
+                    }
+                });
+            });
+        });
+    </script>
+}

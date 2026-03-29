@@ -1,0 +1,207 @@
+﻿@model List<DAQCom.Models.BanAnDTO>
+@{
+    ViewBag.Title = "POS Nhân Viên";
+    Layout = null;
+
+    // ✅ FIX: đúng session nhân viên
+    var nhanVien = Session["NhanVien"] as DAQCom.Models.NhanVien;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS System - PNK Restaurant</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .pos-header {
+            background: #212529;
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* ✅ FIX: Bỏ gạch chân cho toàn bộ link bàn */
+        .table-link {
+            text-decoration: none !important;
+            color: inherit;
+            display: block;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: 0.3s;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+            .table-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            }
+
+        .status-empty {
+            border: 2px solid #198754;
+        }
+
+        .status-busy {
+            border: 2px solid #dc3545;
+            background: #fff5f5;
+        }
+
+        .icon-area {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 10px;
+        }
+
+        .status-empty .icon-area {
+            color: #198754;
+            background: #e8f5e9;
+        }
+
+        .status-busy .icon-area {
+            color: #dc3545;
+            background: #ffe3e3;
+        }
+
+        .table-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-decoration: none !important; /* Đảm bảo chữ không bị gạch chân */
+        }
+
+        .info-box {
+            font-size: 0.85rem;
+            color: #555;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px dashed #ccc;
+            background: rgba(255,255,255,0.5);
+        }
+
+        .price-tag {
+            font-weight: bold;
+            color: #d63384;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="pos-header">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-cash-register fa-2x me-3 text-warning"></i>
+            <div>
+                <h5 class="m-0 fw-bold">POS BÁN HÀNG</h5>
+                <small>@DateTime.Now.ToString("dd/MM/yyyy")</small>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <a href="@Url.Action("Index", "Bep", new { area = "" })"
+               target="_blank"
+               class="btn btn-warning fw-bold text-dark">
+                <i class="fas fa-fire-burner me-2"></i> Nhân viên bếp
+            </a>
+
+            <div class="text-end d-none d-md-block">
+                <div class="fw-bold">
+                    @(nhanVien != null ? nhanVien.HoTen : "Nhân viên")
+                </div>
+                <small class="text-white-50">
+                    @(nhanVien?.ChucVu ?? "Staff")
+                </small>
+            </div>
+
+            <a href="@Url.Action("DangXuat", "QuanAn", new { area = "" })"
+               class="btn btn-danger btn-sm rounded-pill px-3"
+               title="Đăng xuất">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <h5 class="mb-4 fw-bold border-start border-4 border-success ps-2">
+            SƠ ĐỒ BÀN ĂN
+        </h5>
+
+        <div class="row g-4">
+            @foreach (var ban in Model)
+            {
+                <div class="col-6 col-md-4 col-lg-3">
+                    @* Thêm class table-link để quản lý CSS bỏ gạch chân *@
+                    <a href="@Url.Action("GoiMon", "NhanVien", new { idBan = ban.MaBan })" class="table-link">
+
+                        @if (ban.TrangThai == 1)
+                        {
+                            <div class="table-card status-busy">
+                                <div>
+                                    <div class="icon-area"><i class="fas fa-utensils"></i></div>
+                                    <div class="table-name">@ban.TenBan</div>
+                                </div>
+                                <div class="info-box">
+                                    <div class="fw-bold"><i class="far fa-clock me-1"></i> @ban.GioVao</div>
+                                    <div class="price-tag">@string.Format("{0:N0} đ", ban.TamTinh)</div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-card status-empty">
+                                <div>
+                                    <div class="icon-area"><i class="fas fa-chair"></i></div>
+                                    <div class="table-name">@ban.TenBan</div>
+                                </div>
+                                <div>
+                                    <span class="badge bg-success px-3 py-2">Trống</span>
+                                </div>
+                            </div>
+                        }
+
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <script>
+        // reload nếu back từ trang gọi món để cập nhật trạng thái bàn
+        window.addEventListener("pageshow", function (event) {
+            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+                window.location.reload();
+            }
+        });
+
+        // auto refresh mỗi 30 giây để cập nhật đơn mới từ online hoặc bàn khác
+        setTimeout(function () {
+            window.location.reload();
+        }, 30000);
+    </script>
+
+</body>
+</html>

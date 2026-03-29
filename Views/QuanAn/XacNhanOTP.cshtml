@@ -1,0 +1,71 @@
+﻿@{
+    ViewBag.Title = "Xác nhận mã OTP";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="login-container" style="max-width: 450px; margin: 50px auto; padding: 30px; background: #fff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+    <h3 class="text-center fw-bold mb-3">XÁC THỰC OTP</h3>
+    <p class="text-center text-muted small mb-4">
+        Mã xác nhận đã được gửi đến: <br />
+        <b class="text-dark">@Session["ResetEmail"]</b>
+    </p>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger text-center p-2 small">@ViewBag.Error</div>
+    }
+
+    @using (Html.BeginForm("XacNhanOTP", "QuanAn", FormMethod.Post))
+    {
+        <div class="mb-4">
+            <input type="text" name="otpInput" class="form-control text-center fs-2 fw-bold"
+                   maxlength="6" placeholder="000000" required autofocus
+                   style="letter-spacing: 8px; border: 2px solid #eee; border-radius: 8px;" />
+        </div>
+
+        <button type="submit" class="btn btn-success w-100 fw-bold py-2 mb-3">XÁC MINH MÃ</button>
+    }
+
+    <div class="text-center mt-3">
+        <p class="text-muted small">Bạn không nhận được mã?</p>
+        <button id="btnResend" onclick="resendOTP()" class="btn btn-link text-decoration-none fw-bold p-0" disabled>
+            Gửi lại mã <span id="timer">(60s)</span>
+        </button>
+    </div>
+</div>
+
+<script>
+    let timeLeft = 60; // Thời gian chờ 60 giây
+    const timerElement = document.getElementById('timer');
+    const btnResend = document.getElementById('btnResend');
+
+    // Hàm đếm ngược
+    function startTimer() {
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerElement.innerText = `(${timeLeft}s)`;
+
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                timerElement.innerText = "";
+                btnResend.disabled = false;
+                btnResend.classList.remove('text-muted');
+                btnResend.classList.add('text-primary');
+            }
+        }, 1000);
+    }
+
+    // Hàm xử lý gửi lại mã
+    function resendOTP() {
+        // Vô hiệu hóa nút ngay lập tức để tránh bấm nhiều lần
+        btnResend.disabled = true;
+        btnResend.classList.add('text-muted');
+
+        // Chuyển hướng về Action QuenMatKhau (Post) để gửi lại mail
+        // Lưu ý: Chúng ta truyền luôn email từ Session vào form ẩn hoặc URL
+        window.location.href = '@Url.Action("ResendOTP", "QuanAn")';
+    }
+
+    // Chạy đếm ngược khi trang vừa load
+    window.onload = startTimer;
+</script>

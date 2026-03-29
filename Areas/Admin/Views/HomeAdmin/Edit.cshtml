@@ -1,0 +1,55 @@
+﻿@model DAQCom.Models.MonAn
+
+@{
+    Layout = null; /* Quan trọng: Không dùng Layout */
+}
+
+<div class="modal-header">
+    <h5 class="modal-title">Cập nhật món ăn</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+    @using (Html.BeginForm("Edit", "MonAnAdmin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.HiddenFor(m => m.MaMon)
+        @Html.HiddenFor(m => m.HinhAnh) <div class="form-group mb-3">
+            <label class="fw-bold">Tên món</label>
+            @Html.TextBoxFor(m => m.TenMon, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="fw-bold">Giá</label>
+            @Html.TextBoxFor(m => m.Gia, new { @class = "form-control", type = "number" })
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="fw-bold">Loại món</label>
+            @Html.DropDownListFor(m => m.LoaiMon, (SelectList)ViewBag.LoaiMonList, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="fw-bold">Mô tả</label>
+            @Html.TextAreaFor(m => m.MoTa, new { @class = "form-control", rows = 3 })
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-4">
+                <label class="fw-bold">Hình hiện tại</label>
+                @if (!string.IsNullOrEmpty(Model.HinhAnh))
+                {
+                    <img src="~/Content/Images/@Model.HinhAnh" class="img-fluid rounded border" />
+                }
+            </div>
+            <div class="col-8">
+                <label class="fw-bold">Đổi hình mới</label>
+                <input type="file" name="HinhAnhMoi" class="form-control" />
+            </div>
+        </div>
+
+        <div class="modal-footer pe-0 pb-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-success">Cập nhật</button>
+        </div>
+    }
+</div>

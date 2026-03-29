@@ -1,0 +1,145 @@
+﻿@using DAQCom.Models
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.Title - PNK Restaurant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background-color: #f9f9f9;
+            font-family: "Segoe UI", sans-serif;
+            padding-top: 110px;
+        }
+
+        .navbar-custom {
+            background-color: #000 !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+            height: 110px;
+        }
+
+        .navbar-brand img {
+            height: 100px;
+            width: auto;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+            .navbar-brand img:hover {
+                transform: scale(1.08);
+            }
+
+        .navbar-nav .nav-link {
+            color: #f8f9fa !important;
+            font-weight: 500;
+            padding: 12px 18px !important;
+            border-radius: 8px;
+            transition: all 0.25s;
+            font-size: 16px;
+        }
+
+            .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
+                color: #ffc107 !important;
+            }
+
+        footer {
+            background: #000;
+            color: #fff;
+            padding: 20px 0;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    @Html.Partial("Nav_Partial")
+
+    <div class="container mt-4">
+        @RenderBody()
+    </div>
+
+    <footer class="text-center">
+        <div class="container">
+            <p>&copy; @DateTime.Now.Year - PNK Restaurant | Mọi quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // ================= PHẦN 1: TỰ ĐỘNG THOÁT (1 PHÚT) =================
+        var timeoutInSeconds = 60; // 60 giây = 1 phút
+        var idleSecondsCounter = 0;
+        var isLoggedIn = @(Session["Role"] != null ? "true" : "false");
+
+        if (isLoggedIn) {
+            // Bộ đếm thời gian thực
+            var idleTimer = setInterval(function () {
+                idleSecondsCounter++;
+                console.log("Thời gian treo máy: " + idleSecondsCounter + "s");
+
+                if (idleSecondsCounter >= timeoutInSeconds) {
+                    clearInterval(idleTimer);
+
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Hết phiên làm việc!',
+                        text: 'Bạn đã không thao tác quá 1 phút. Hệ thống sẽ tự động đăng xuất.',
+                        confirmButtonColor: '#ffc107',
+                        confirmButtonText: 'Đồng ý',
+                        allowOutsideClick: false
+                    }).then(() => {
+                        window.location.href = '@Url.Action("DangXuat", "QuanAn")';
+                    });
+
+                    // Nếu khách không bấm, 5s sau tự chuyển trang
+                    setTimeout(function() {
+                        window.location.href = '@Url.Action("DangXuat", "QuanAn")';
+                    }, 5000);
+                }
+            }, 1000);
+
+            // Reset bộ đếm khi người dùng tương tác
+            $(document).on('mousemove keypress click scroll', function () {
+                idleSecondsCounter = 0;
+            });
+        }
+
+        // ================= PHẦN 2: GIỎ HÀNG AJAX =================
+        $(document).on('click', '.btn-add-cart', function (e) {
+            e.preventDefault();
+            var maMon = $(this).data('id');
+            if (!maMon) return;
+
+            $.ajax({
+                url: '@Url.Action("ThemGioHang", "GioHang")',
+                type: 'POST',
+                data: { maMon: maMon },
+                success: function (res) {
+                    if (res && res.success) {
+                        $('#cart-count').text(res.tongSL);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Đã thêm vào giỏ!',
+                            showConfirmButton: false,
+                            timer: 1000
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

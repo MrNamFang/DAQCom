@@ -1,0 +1,47 @@
+﻿@model DAQCom.Models.MonAn
+
+@{
+    Layout = null; /* Quan trọng: Không dùng Layout */
+}
+
+<div class="modal-header">
+    <h5 class="modal-title">Thêm món ăn mới</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+    @using (Html.BeginForm("Create", "MonAnAdmin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-group mb-3">
+            <label class="fw-bold">Tên món</label>
+            @Html.TextBoxFor(m => m.TenMon, new { @class = "form-control", required = "required" })
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="fw-bold">Giá bán</label>
+            @Html.TextBoxFor(m => m.Gia, new { @class = "form-control", type = "number" })
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="fw-bold">Loại món</label>
+            @Html.DropDownListFor(m => m.LoaiMon, (SelectList)ViewBag.LoaiMonList, "--- Chọn loại ---", new { @class = "form-control" })
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="fw-bold">Mô tả</label>
+            @Html.TextAreaFor(m => m.MoTa, new { @class = "form-control", rows = 3 })
+        </div>
+
+        <div class="form-group mb-3">
+            <label class="fw-bold">Hình ảnh</label>
+            <input type="file" name="HinhAnhUpload" class="form-control" />
+        </div>
+
+        <div class="modal-footer pe-0 pb-0">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            <button type="submit" class="btn btn-primary">Lưu lại</button>
+        </div>
+    }
+</div>

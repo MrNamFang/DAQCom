@@ -1,0 +1,19 @@
+﻿
+@{
+    ViewBag.Title = "Thành công";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5 text-center" style="min-height: 50vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <div class="mb-4">
+        <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+    </div>
+    <h2 class="text-success fw-bold text-uppercase">Đặt Bàn Thành Công!</h2>
+    <p class="lead text-muted my-3" style="max-width: 600px;">
+        Cảm ơn quý khách đã chọn <strong>PNK Restaurant</strong>. <br>
+        Thông tin đặt bàn của quý khách đã được ghi nhận. Nhân viên nhà hàng sẽ gọi điện xác nhận trong ít phút tới.
+    </p>
+    <a href="@Url.Action("Index", "QuanAn")" class="btn btn-outline-success rounded-pill px-4 mt-3">
+        <i class="bi bi-house-door-fill me-2"></i>Về Trang Chủ
+    </a>
+</div>

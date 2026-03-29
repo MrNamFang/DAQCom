@@ -1,0 +1,175 @@
+﻿@model List<DAQCom.Models.ChiTietHoaDon>
+@{ Layout = null; }
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <style>
+        /* Reset cơ bản */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            /* Sử dụng Times New Roman để in tiếng Việt không bị lỗi */
+            font-family: 'Times New Roman', Times, serif;
+            width: 75mm; /* Khổ giấy in nhiệt 80mm chừa lề */
+            margin: 0 auto;
+            padding: 5px;
+            color: #000;
+            background: #fff;
+            font-size: 16px; /* Chữ to rõ dễ đọc */
+            line-height: 1.4;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px dashed #000;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .title {
+            font-size: 1.4em;
+            font-weight: 900;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .ban-name {
+            font-size: 2.2em;
+            font-weight: 900;
+            margin: 5px 0;
+            display: block;
+            line-height: 1;
+        }
+
+        .meta {
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        /* DANH SÁCH MÓN */
+        .item-list {
+            width: 100%;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between; /* Đẩy 2 bên ra xa nhất */
+            align-items: flex-start; /* Căn lề trên */
+            padding: 8px 0;
+            border-bottom: 1px dotted #ccc;
+        }
+
+        /* Cột Trái: Tên món */
+        .item-left {
+            flex: 1;
+            padding-right: 15px; /* Khoảng cách với số lượng */
+        }
+
+        .item-name {
+            font-weight: 700;
+            font-size: 1.2em;
+            line-height: 1.2;
+            display: block;
+        }
+
+        .item-note {
+            font-style: italic;
+            font-size: 0.9em;
+            margin-top: 3px;
+            display: block;
+            font-weight: normal;
+        }
+
+        /* Cột Phải: Số lượng */
+        .item-right {
+            text-align: right;
+            min-width: 30px;
+        }
+
+        .item-qty {
+            font-weight: 900;
+            font-size: 1.6em; /* Số lượng rất to */
+            display: block;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1em;
+            border-top: 2px dashed #000;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="title">PHIẾU BẾP / BAR</span>
+        <span class="ban-name">@ViewBag.TenBan</span>
+        <div class="meta">
+            <div>@DateTime.Now.ToString("dd/MM/yyyy HH:mm")</div>
+            <div>Staff: @ViewBag.NguoiOrder</div>
+        </div>
+    </div>
+
+    <div class="item-list">
+        <div class="item-header">
+            <span>Tên món</span>
+            <span>SL</span>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <div class="item-row">
+                    <div class="item-left">
+                        <span class="item-name">@item.MonAn.TenMon</span>
+                        @if (!string.IsNullOrEmpty(item.GhiChu))
+                        {
+                            <span class="item-note">(@item.GhiChu)</span>
+                        }
+                    </div>
+
+                    <div class="item-right">
+                        <span class="item-qty">@item.SoLuong</span>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div style="text-align:center; padding: 20px;">Không có món nào.</div>
+        }
+    </div>
+
+    <div class="footer">
+        --- YÊU CẦU CHẾ BIẾN ---
+    </div>
+
+    <script>
+        // Tự động in khi tải xong
+        window.onload = function () {
+            window.print();
+        }
+    </script>
+</body>
+</html>

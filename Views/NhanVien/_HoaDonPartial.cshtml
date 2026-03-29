@@ -1,0 +1,134 @@
+﻿@model DAQCom.Models.HoaDon
+
+<div id="invoice-detail" style="font-family: 'Courier New', Courier, monospace; color: #000; background: #fff; width: 100%; max-width: 80mm; margin: 0 auto; font-size: 14px; padding: 10px;">
+
+    <div style="text-align: center; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dashed #000;">
+        <h2 style="margin: 0; font-weight: bold; text-transform: uppercase; font-size: 1.3em;">PHIẾU THANH TOÁN</h2>
+        <h3 style="margin: 5px 0; font-size: 1.1em;">PNK RESTAURANT</h3>
+        <div style="font-size: 0.9em; margin-top: 5px; line-height: 1.4;">
+            <div>Ngày: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</div>
+            <div>Số HĐ: <b>#@(Model != null ? Model.MaHD.ToString() : "---")</b></div>
+            <div>Khách: <b>@(Model != null ? Model.TenNguoiNhan : "Khách lẻ")</b></div>
+        </div>
+    </div>
+
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.95em;">
+        <thead>
+            <tr style="border-bottom: 1px solid #000;">
+                <th style="text-align: left; padding: 5px 0;">Tên món</th>
+                <th style="text-align: center; padding: 5px 0;">SL</th>
+                <th style="text-align: right; padding: 5px 0;">T.Tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.ChiTietHoaDons != null)
+            {
+                foreach (var item in Model.ChiTietHoaDons)
+                {
+                    <tr style="border-bottom: 1px dotted #ccc;">
+                        <td style="padding: 5px 0; vertical-align: top;">
+                            @(item.MonAn != null ? item.MonAn.TenMon : "Món ăn")
+                        </td>
+                        <td style="text-align: center; vertical-align: top; padding: 5px 0;">
+                            @item.SoLuong
+                        </td>
+                        <td style="text-align: right; vertical-align: top; padding: 5px 0;">
+                            @string.Format("{0:N0}", (item.DonGia ?? 0) * (item.SoLuong ?? 0))
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <div style="margin-top: 10px; border-top: 1px solid #000; padding-top: 5px;">
+        <div style="display: flex; justify-content: space-between; font-size: 1.1em; font-weight: bold;">
+            <span>TỔNG CỘNG:</span>
+            <span>@string.Format("{0:N0}", Model != null ? (Model.TongTien ?? 0) : 0) VNĐ</span>
+        </div>
+        <div style="text-align: right; font-size: 0.8em; margin-top: 2px; font-style: italic;">
+            (Đã bao gồm VAT)
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 15px; font-size: 0.85em; border-top: 1px dashed #000; padding-top: 10px;">
+        *** Cảm ơn quý khách và hẹn gặp lại! ***
+        <br />Wifi: PNK_Free / Pass: 88888888
+    </div>
+</div>
+
+<div class="row g-2 mt-3 no-print" style="padding: 10px;">
+    <div class="col-6">
+        <button type="button" class="btn btn-success w-100 py-3 fw-bold" onclick="xacNhanThanhToan(@Model.MaHD, 'Tiền mặt')">
+            <i class="fas fa-money-bill-wave"></i> TIỀN MẶT
+        </button>
+    </div>
+    <div class="col-6">
+        <button type="button" class="btn btn-primary w-100 py-3 fw-bold" onclick="xacNhanThanhToan(@Model.MaHD, 'Chuyển khoản')">
+            <i class="fas fa-university"></i> CHUYỂN KHOẢN
+        </button>
+    </div>
+    <div class="col-12 mt-2">
+        <button type="button" class="btn btn-secondary w-100" onclick="window.print()">
+            <i class="fas fa-print"></i> In Hóa Đơn
+        </button>
+    </div>
+</div>
+
+<script>
+    function xacNhanThanhToan(maHD, hinhThuc) {
+        if (confirm('Xác nhận thanh toán cho hóa đơn #' + maHD + ' bằng: ' + hinhThuc + '?')) {
+            $.ajax({
+                url: '/NhanVien/XacNhanThanhToan',
+                type: 'POST',
+                data: {
+                    maHD: maHD,
+                    hinhThuc: hinhThuc
+                },
+                success: function (res) {
+                    if (res.success) {
+                        alert('Thanh toán thành công!');
+                        // Đóng modal nếu đang mở
+                        var modalElement = document.getElementById('modalHoaDon');
+                        if (modalElement) {
+                            var modalInstance = bootstrap.Modal.getInstance(modalElement);
+                            if (modalInstance) modalInstance.hide();
+                        }
+                        // Chuyển hướng về trang thu ngân
+                        window.location.href = '/NhanVien/ThuNgan';
+                    } else {
+                        alert('Lỗi: ' + res.msg);
+                    }
+                },
+                error: function () {
+                    alert('Lỗi kết nối server!');
+                }
+            }); // Đã thêm dấu đóng ngoặc ở đây
+        }
+    }
+</script>
+
+<style>
+    @@media print {
+        .no-print {
+            display: none !important;
+        }
+
+        body * {
+            visibility: hidden;
+        }
+
+        #invoice-detail, #invoice-detail * {
+            visibility: visible;
+        }
+
+        #invoice-detail {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 80mm !important;
+            margin: 0;
+            padding: 0;
+        }
+    }
+</style>

@@ -1,0 +1,163 @@
+﻿@using DAQCom.Models
+@model List<GioHang>
+
+@{
+    ViewBag.Title = "Thanh toán đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <h2 class="text-center text-uppercase fw-bold text-success mb-5"
+        style="border-bottom: 3px solid #28a745; display: inline-block; padding-bottom: 10px;">
+        XÁC NHẬN THANH TOÁN
+    </h2>
+
+    @using (Html.BeginForm("DatHang", "GioHang", FormMethod.Post))
+    {
+        <div class="row g-4">
+            @* --- CỘT TRÁI: DANH SÁCH MÓN ĂN & GHI CHÚ --- *@
+            <div class="col-lg-7">
+                <div class="d-flex align-items-center mb-3">
+                    <span class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px;">1</span>
+                    <h4 class="fw-bold text-primary m-0">Danh sách món ăn & Ghi chú</h4>
+                </div>
+
+                @if (Model != null && Model.Count > 0)
+                {
+                    // Dùng vòng lặp FOR để binding dữ liệu chính xác
+                    for (int i = 0; i < Model.Count; i++)
+                    {
+                        // Xử lý ảnh: Nếu null hoặc rỗng thì dùng ảnh mặc định
+                        string imgPath = string.IsNullOrEmpty(Model[i].sAnh)
+                                         ? "~/Content/Images/noimage.jpg"
+                                         : "~/Content/Images/" + Model[i].sAnh;
+
+                        <div class="card mb-3 shadow-sm border-0 overflow-hidden">
+                            <div class="row g-0">
+                                <div class="col-md-3 position-relative">
+                                    @* Ảnh món ăn *@
+                                    <img src="@Url.Content(imgPath)"
+                                         onerror="this.src='@Url.Content("~/Content/Images/noimage.jpg")'"
+                                         class="img-fluid h-100 w-100"
+                                         style="object-fit: cover; min-height: 140px;"
+                                         alt="@Model[i].sTenMon">
+                                    <span class="position-absolute top-0 start-0 badge bg-warning text-dark m-2 rounded-pill shadow-sm">x @Model[i].iSoLuong</span>
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="card-body py-3">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h5 class="card-title fw-bold text-dark mb-0">@Model[i].sTenMon</h5>
+                                            <div class="text-end">
+                                                <div class="fw-bold text-danger fs-5">@Model[i].dThanhTien.ToString("N0") đ</div>
+                                                <small class="text-muted fst-italic">(@Model[i].dDonGia.ToString("N0") đ/món)</small>
+                                            </div>
+                                        </div>
+
+                                        @* --- CÁC TRƯỜNG ẨN (HIDDEN) QUAN TRỌNG ĐỂ GỬI VỀ CONTROLLER --- *@
+                                        @Html.HiddenFor(m => m[i].iMaMon)
+                                        @Html.HiddenFor(m => m[i].sTenMon)
+                                        @Html.HiddenFor(m => m[i].dDonGia)
+                                        @Html.HiddenFor(m => m[i].iSoLuong)
+                                        @Html.HiddenFor(m => m[i].sAnh)
+
+                                        @* --- Ô NHẬP GHI CHÚ --- *@
+                                        <div class="bg-light p-2 rounded border mt-2">
+                                            <label class="form-label small fw-bold text-secondary mb-1 d-flex align-items-center">
+                                                <i class="bi bi-pencil-fill me-2"></i> Ghi chú món này:
+                                            </label>
+                                            @Html.TextBoxFor(m => m[i].GhiChu, new { @class = "form-control form-control-sm border-0 bg-white", placeholder = "VD: Không hành, ít cay..." })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted text-center">Không có món ăn nào để thanh toán.</p>
+                }
+
+                <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded shadow-sm mt-4">
+                    <span class="fs-5 text-muted">Tổng tiền thanh toán:</span>
+                    <span class="fs-3 fw-bold text-danger">@(ViewBag.TongTien != null ? ((double)ViewBag.TongTien).ToString("N0") : "0") đ</span>
+                </div>
+            </div>
+
+            @* --- CỘT PHẢI: THÔNG TIN GIAO HÀNG --- *@
+            <div class="col-lg-5">
+                <div class="card shadow border-0 sticky-top" style="top: 20px; z-index: 1;">
+                    <div class="card-header bg-danger text-white py-3">
+                        <div class="d-flex align-items-center">
+                            <span class="bg-white text-danger rounded-circle d-flex align-items-center justify-content-center me-2 fw-bold" style="width: 25px; height: 25px;">2</span>
+                            <h5 class="m-0 fw-bold text-uppercase">Thông Tin Giao Hàng</h5>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary">Họ tên người nhận <span class="text-danger">*</span></label>
+                            <input type="text" name="TenNguoiNhan" class="form-control" required value="@ViewBag.TenNguoiNhan" placeholder="Nhập họ tên...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary">Số điện thoại <span class="text-danger">*</span></label>
+                            <input type="text" name="SDTNguoiNhan" class="form-control" required value="@ViewBag.SDTNguoiNhan" placeholder="Nhập số điện thoại...">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary">Địa chỉ giao hàng <span class="text-danger">*</span></label>
+                            <textarea name="DiaChiNguoiNhan" class="form-control" rows="3" required placeholder="Số nhà, tên đường...">@ViewBag.DiaChiNguoiNhan</textarea>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center me-2 fw-bold" style="width: 25px; height: 25px;">3</span>
+                            <h5 class="m-0 fw-bold text-uppercase text-dark">Thanh toán</h5>
+                        </div>
+
+                        <div class="payment-methods">
+                            <div class="form-check mb-2 p-3 border rounded bg-light payment-option">
+                                <input class="form-check-input mt-1" type="radio" name="PhuongThucThanhToan" id="cod" value="Tiền mặt" checked>
+                                <label class="form-check-label w-100 fw-bold cursor-pointer ps-2" for="cod">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Thanh toán khi nhận hàng (COD)</span>
+                                        <i class="bi bi-cash-coin text-success fs-4"></i>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-check mb-4 p-3 border rounded bg-light payment-option">
+                                <input class="form-check-input mt-1" type="radio" name="PhuongThucThanhToan" id="banking" value="Chuyển khoản">
+                                <label class="form-check-label w-100 fw-bold cursor-pointer ps-2" for="banking">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Chuyển khoản ngân hàng</span>
+                                        <i class="bi bi-qr-code-scan text-primary fs-4"></i>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning w-100 py-3 fw-bold text-uppercase shadow transition-btn" onclick="return confirm('Xác nhận đặt hàng?');">
+                            Hoàn tất đặt hàng <i class="bi bi-check2-circle ms-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .payment-option:hover {
+        background-color: #e9ecef !important;
+        border-color: #adb5bd !important;
+        cursor: pointer;
+    }
+
+    .transition-btn {
+        transition: all 0.3s ease;
+    }
+
+        .transition-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+        }
+</style>

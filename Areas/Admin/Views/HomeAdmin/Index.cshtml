@@ -1,0 +1,504 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    /* ================== GLOBAL STYLING ================== */
+
+    .dashboard-container {
+        padding: 20px;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #334155;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        padding-left: 10px;
+        border-left: 4px solid #6366f1;
+    }
+
+    /* ================== STAT CARDS (Dashboard Top - Giữ Nguyên Màu Sắc Đã Chỉnh Sửa Lần Trước) ================== */
+
+    .stat-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 24px;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 100%;
+        transition: transform 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+        }
+
+        .stat-card:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: 80px 80px;
+            opacity: 1;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+    .stat-content, .icon-box {
+        z-index: 2;
+        position: relative;
+    }
+
+    /* Tông màu cho Dashboard Stats */
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-top: 5px;
+    }
+
+    /* 1. Tổng Đơn Hàng (Giữ nguyên) */
+    .col-md-3:nth-child(1) .stat-card:before {
+        background-image: url("data:image/svg+xml,%3Csvg width='300' height='300' viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%236366f1' fill-opacity='0.05'%3E%3Ccircle cx='50' cy='50' r='10'/%3E%3Ccircle cx='200' cy='150' r='10'/%3E%3Ccircle cx='400' cy='80' r='10'/%3E%3Ccircle cx='550' cy='200' r='10'/%3E%3Ccircle cx='300' cy='300' r='15'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .icon-indigo {
+        background: linear-gradient(135deg, #6366F1, #4338CA);
+        color: white;
+        border-radius: 50%;
+        padding: 15px;
+        font-size: 1.5rem;
+    }
+
+
+    /* 2. Khách Hàng Mới (Indigo - Giữ nguyên) */
+    .col-md-3:nth-child(2) .stat-value {
+        color: #6366f1;
+    }
+
+    .col-md-3:nth-child(2) .stat-card:before {
+        background-image: url("data:image/svg+xml,%3Csvg width='300' height='300' viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%236366f1' fill-opacity='0.05'%3E%3Ccircle cx='50' cy='50' r='10'/%3E%3Ccircle cx='200' cy='150' r='10'/%3E%3Ccircle cx='400' cy='80' r='10'/%3E%3Ccircle cx='550' cy='200' r='10'/%3E%3Ccircle cx='300' cy='300' r='15'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    /* 3. Doanh Thu (Warm Orange/Red - Giữ nguyên) */
+    .col-md-3:nth-child(3) .stat-value {
+        color: #F97316;
+    }
+
+    .col-md-3:nth-child(3) .stat-card:before {
+        background-image: url("data:image/svg+xml,%3Csvg width='300' height='300' viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f97316' fill-opacity='0.05'%3E%3Ccircle cx='50' cy='50' r='10'/%3E%3Ccircle cx='200' cy='150' r='10'/%3E%3Ccircle cx='400' cy='80' r='10'/%3E%3Ccircle cx='550' cy='200' r='10'/%3E%3Ccircle cx='300' cy='300' r='15'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .text-orange {
+        color: #F97316 !important;
+    }
+
+    .icon-orange {
+        background: linear-gradient(135deg, #F97316, #EA580C);
+        color: white;
+        border-radius: 50%;
+        padding: 15px;
+        font-size: 1.5rem;
+    }
+
+    /* 4. Nhân Viên Chờ Duyệt (Red/Pink - Giữ nguyên) */
+    .col-md-3:nth-child(4) .stat-value {
+        color: #E11D48;
+    }
+
+    .col-md-3:nth-child(4) .stat-card:before {
+        background-image: url("data:image/svg+xml,%3Csvg width='300' height='300' viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23e11d48' fill-opacity='0.05'%3E%3Ccircle cx='50' cy='50' r='10'/%3E%3Ccircle cx='200' cy='150' r='10'/%3E%3Ccircle cx='400' cy='80' r='10'/%3E%3Ccircle cx='550' cy='200' r='10'/%3E%3Ccircle cx='300' cy='300' r='15'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .icon-red {
+        background: linear-gradient(135deg, #E11D48, #BE123C);
+        color: white;
+        border-radius: 50%;
+        padding: 15px;
+        font-size: 1.5rem;
+    }
+
+    .btn-approve {
+        background: #fbcfe8 !important; /* Pink 100 */
+        color: #9d174d !important; /* Pink 700 */
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 5px 10px;
+        margin-top: 8px;
+    }
+
+
+    /* ================== BANNER ĐẶT BÀN (CHỈNH SỬA LẠI THEO TÔNG TRẮNG/HỒNG TÍM) ================== */
+
+    .banner-booking {
+        margin-top: 35px;
+        /* NỀN: Gradient trắng sang tím/hồng nhạt */
+        background: linear-gradient(135deg, #ffffff 0%, #f3e8ff 100%);
+        border-radius: 20px;
+        padding: 30px;
+        color: #6366f1; /* Chữ màu tím */
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05), 0 10px 30px rgba(167, 139, 250, 0.1);
+        position: relative;
+        overflow: hidden;
+        /* Họa tiết: Khối tròn mờ màu hồng/tím */
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 500 500' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3Cfilter id='blur'%3E%3CfeGaussianBlur stdDeviation='50'/%3E%3C/filter%3E%3C/defs%3E%3Ccircle fill='%23FBCFE8' cx='450' cy='50' r='150' filter='url(%23blur)'/%3E%3Ccircle fill='%23DDD6FE' cx='50' cy='450' r='120' filter='url(%23blur)'/%3E%3C/svg%3E");
+        background-size: 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+        .banner-booking h3 {
+            color: #4338CA; /* Tím đậm cho tiêu đề */
+        }
+
+        .banner-booking p {
+            color: #6B7280; /* Xám đậm cho mô tả */
+        }
+
+    .banner-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    /* Badge Đang Chờ (Hồng pastel) */
+    .badge-status {
+        background: #FCE7F6; /* Pink 50 */
+        color: #DB2777; /* Pink 700 */
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    /* Nút Xem Ngay (Trắng viền hồng) */
+    .btn-glass {
+        background: white;
+        color: #DB2777;
+        border: 2px solid #FBCFE8; /* Pink 100 border */
+        padding: 10px 24px;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: 0.3s;
+        text-decoration: none;
+    }
+
+        .btn-glass:hover {
+            background: #FCE7F6;
+            color: #C0264A;
+        }
+
+    @@media (max-width: 768px) {
+        .banner-booking {
+            flex-direction: column;
+            text-align: center;
+            gap: 20px;
+        }
+
+        .banner-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+
+    /* ================== PATTERN + CAT CARD (Giữ nguyên) ================== */
+
+    .cat-card {
+        border-radius: 18px;
+        padding: 24px;
+        height: 180px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background-size: cover;
+        background-blend-mode: overlay;
+    }
+
+        .cat-card:after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background-repeat: no-repeat;
+            background-position: bottom right;
+            opacity: 0.25;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .cat-card > div, .cat-card > i {
+            z-index: 2;
+        }
+
+    /* Các Gradient Colors (Giữ nguyên) */
+    .grad-orange {
+        background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+    }
+
+    .grad-green {
+        background: linear-gradient(135deg, #10B981, #059669);
+    }
+
+    .grad-pink {
+        background: linear-gradient(135deg, #F472B6, #DB2777);
+    }
+
+    .grad-purple {
+        background: linear-gradient(135deg, #A78BFA, #7C3AED);
+    }
+
+    .grad-blue {
+        background: linear-gradient(135deg, #38BDF8, #0284C7);
+    }
+
+    .grad-indigo {
+        background: linear-gradient(135deg, #6366F1, #4338CA);
+    }
+
+    .cat-card:hover {
+        transform: translateY(-5px) scale(1.02);
+    }
+
+    .cat-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .cat-count {
+        opacity: 0.9;
+        margin-bottom: 15px;
+    }
+
+    .btn-manage {
+        background: white;
+        color: #333;
+        padding: 8px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: .85rem;
+    }
+
+    .bg-icon {
+        position: absolute;
+        bottom: -10px;
+        right: -10px;
+        font-size: 7rem;
+        opacity: 0.15;
+        transform: rotate(-15deg);
+    }
+
+    /* HỌA TIẾT DANH MỤC MÓN ĂN (Giữ nguyên) */
+    /* 1. Món Mặn (Orange) - Blob */
+    .col-md-4:nth-child(1) .cat-card:after {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cpath fill='%23ffffff' d='M443.5,236.4c17.5,75.2-46.7,133.5-117.8,172.6c-71.1,39.1-158.4,58.3-219.5,13.8c-61.1-44.5-96.1-168.5-49-247.3c47.1-78.8,247.7-101.6,323.8-39.1C447,137.9,438.1,192.9,443.5,236.4z'/%3E%3C/svg%3E");
+        width: 200px;
+        height: 200px;
+    }
+
+    /* 2. Món Chay (Green) - Lá/Tàn */
+    .col-md-4:nth-child(2) .cat-card:after {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cpath fill='%23ffffff' d='M470.8,272.5c-42.3,137.9-253.9,139.7-293.7,13.1c-39.8-126.6-8.9-269.1,70.9-322.2C328.9-49.9,513.1,134.6,470.8,272.5z'/%3E%3C/svg%3E");
+        width: 180px;
+        height: 180px;
+    }
+
+    /* 3. Món Canh (Pink) - Vòng tròn */
+    .col-md-4:nth-child(3) .cat-card:after {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Ccircle fill='%23ffffff' cx='250' cy='250' r='200'/%3E%3C/svg%3E");
+        width: 150px;
+        height: 150px;
+    }
+
+    /* 4. Tráng Miệng (Purple) - Tam giác */
+    .col-md-4:nth-child(4) .cat-card:after {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cpolygon fill='%23ffffff' points='250,50 450,450 50,450'/%3E%3C/svg%3E");
+        width: 180px;
+        height: 180px;
+    }
+
+    /* 5. Nước Uống (Blue) - Hình học lồng ghép (Triangle + Square) */
+    .col-md-4:nth-child(5) .cat-card:after {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Crect fill='%23ffffff' x='100' y='100' width='300' height='300' transform='rotate(15 250 250)'/%3E%3Cpolygon fill='%23ffffff' opacity='0.5' points='250,50 450,450 50,450'/%3E%3C/svg%3E");
+        width: 200px;
+        height: 200px;
+        opacity: 0.15;
+    }
+
+    /* 6. Món Ăn Kèm (Indigo) - Khối vuông */
+    .col-md-4:nth-child(6) .cat-card:after {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Crect fill='%23ffffff' x='100' y='100' width='300' height='300'/%3E%3C/svg%3E");
+        width: 150px;
+        height: 150px;
+    }
+</style>
+
+
+
+<div class="dashboard-container">
+
+    <div class="row g-4">
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-content">
+                    <h6>Tổng Đơn Hàng</h6>
+                    <div class="stat-value">@ViewBag.TongDonHang</div>
+                </div>
+                <div class="icon-box icon-indigo">
+                    <i class="fa fa-shopping-cart"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-content">
+                    <h6>Khách Hàng Mới</h6>
+                    <div class="stat-value" style="color:#6366f1">@ViewBag.KhachHangMoi</div>
+                </div>
+                <div class="icon-box icon-indigo">
+                    <i class="fa fa-users"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-content">
+                    <h6>Doanh Thu Hôm Nay</h6>
+                    <div class="stat-value text-orange">@ViewBag.DoanhThu VNĐ</div>
+                </div>
+                <div class="icon-box icon-orange">
+                    <i class="fa fa-money-bill-wave"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-content">
+                    <h6>Nhân Viên Chờ Duyệt</h6>
+                    <div class="stat-value" style="color:#e11d48">@ViewBag.NhanVienChoDuyet</div>
+
+                    <a href="@Url.Action("NhanVienChoDuyet","NhanVienAdmin")"
+                       class="btn btn-sm btn-approve">
+                        Duyệt ngay
+                    </a>
+                </div>
+
+                <div class="icon-box icon-red">
+                    <i class="fa fa-user-clock"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="banner-booking">
+        <div>
+            <h3>Quản Lý Đặt Bàn</h3>
+            <p>Kiểm tra danh sách bàn đã đặt và khách đang chờ xếp bàn</p>
+        </div>
+
+        <div class="banner-actions">
+            <div class="badge-status">@ViewBag.SoLuongDatBanCho khách đang chờ</div>
+            <a href="@Url.Action("Index", "DatBanAdmin")" class="btn-glass">Xem Ngay</a>
+        </div>
+    </div>
+
+
+    <h4 class="section-title">Danh Mục Món Ăn</h4>
+
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="cat-card grad-orange">
+                <div>
+                    <div class="cat-name">Món Mặn</div>
+                    <div class="cat-count">Số lượng: @ViewBag.SoLuongMonMan</div>
+                    <a class="btn-manage" href="@Url.Action("Index","MonAnAdmin",new { loaiMon="Món mặn"})">Quản lý</a>
+                </div>
+                <i class="fa fa-drumstick-bite bg-icon"></i>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="cat-card grad-green">
+                <div>
+                    <div class="cat-name">Món Chay</div>
+                    <div class="cat-count">Số lượng: @ViewBag.SoLuongMonChay</div>
+                    <a class="btn-manage" href="@Url.Action("Index","MonAnAdmin",new { loaiMon="Món chay"})">Quản lý</a>
+                </div>
+                <i class="fa fa-leaf bg-icon"></i>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="cat-card grad-pink">
+                <div>
+                    <div class="cat-name">Món Canh</div>
+                    <div class="cat-count">Số lượng: @ViewBag.SoLuongMonCanh</div>
+                    <a class="btn-manage" href="@Url.Action("Index","MonAnAdmin",new { loaiMon="Món canh"})">Quản lý</a>
+                </div>
+                <i class="fa fa-utensil-spoon bg-icon"></i>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="cat-card grad-purple">
+                <div>
+                    <div class="cat-name">Tráng Miệng</div>
+                    <div class="cat-count">Số lượng: @ViewBag.SoLuongTrangMieng</div>
+                    <a class="btn-manage" href="@Url.Action("Index","MonAnAdmin",new { loaiMon="Tráng miệng"})">Quản lý</a>
+                </div>
+                <i class="fa fa-ice-cream bg-icon"></i>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="cat-card grad-blue">
+                <div>
+                    <div class="cat-name">Nước Uống</div>
+                    <div class="cat-count">Số lượng: @ViewBag.SoLuongNuocUong</div>
+                    <a class="btn-manage" href="@Url.Action("Index","MonAnAdmin",new { loaiMon="Nước uống"})">Quản lý</a>
+                </div>
+                <i class="fa fa-glass-martini bg-icon"></i>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="cat-card grad-indigo">
+                <div>
+                    <div class="cat-name">Món Ăn Kèm</div>
+                    <div class="cat-count">Số lượng: @ViewBag.SoLuongMonAnKem</div>
+                    <a class="btn-manage" href="@Url.Action("Index","MonAnAdmin",new { loaiMon="Món ăn kèm"})">Quản lý</a>
+                </div>
+                <i class="fa fa-carrot bg-icon"></i>
+            </div>
+        </div>
+
+    </div>
+
+</div>
